@@ -3,9 +3,40 @@
 .world-intro{font-style:italic}.world-found-label{font:700 20px Caveat,cursive;color:#755738;margin-top:10px}.world-found{font-style:italic;margin-top:3px!important}.world-ending{font:600 23px Caveat,cursive;text-align:center;color:#755738;margin:26px 0}
 @media(max-width:700px){.book-shell{width:min(98vw,500px);height:min(89vh,760px)}.book{display:block;padding:13% 13% 14% 17%;background-size:100% 100%;overflow-y:auto}.page{overflow:visible;margin:0 0 16px;padding:12px 10px;transform:none;background:#f0ddbaf5}.left{padding-bottom:22px;border-bottom:2px dashed #ab906b}.journal-button{font-size:22px;top:10px;right:10px}.close{top:-32px}h1{font-size:43px}}
 .field-intro{font-style:italic;color:#66503b}.field-label{font:700 10px Georgia,serif;letter-spacing:.09em;color:#826447;margin-bottom:7px}.field-entry p{font-style:italic;margin:9px 0}.field-entry strong{display:block}
+
+/* Explorer Passport — independent of the Traveler's Journal */
+.passport-button{position:fixed;left:18px;top:16px;z-index:3;padding:10px 17px;border:1px solid #c7a977;border-radius:9px;background:#18372de8;color:#f7e6c4;font:700 24px Caveat,cursive;cursor:pointer;box-shadow:0 5px 22px #0007}
+.passport-veil{position:fixed;inset:0;z-index:20;background:#08180fba;display:none;align-items:center;justify-content:center;padding:16px}.passport-veil.open{display:flex}
+.passport-card{position:relative;width:min(95vw,450px);max-height:90vh;overflow-y:auto;background:#efdfbf;color:#443321;border:5px double #b89b70;border-radius:10px 17px 12px 19px;padding:26px 30px;box-shadow:0 20px 55px #0009;transform:rotate(-.3deg)}
+.passport-card h2{margin:4px 0 8px}.passport-card p{font-size:12px;line-height:1.65}.passport-card label{display:block;font:700 19px Caveat,cursive;margin:10px 0 4px}.passport-card input{width:100%;padding:10px;border:1px solid #ac8d62;background:#fff7e9;border-radius:5px;color:#392b1e;font:14px Georgia,serif}.passport-card button.action{background:#365844;color:#fff2d7;border:0;border-radius:6px;padding:11px 16px;margin-top:15px;font:700 22px Caveat,cursive;cursor:pointer;width:100%}.passport-card button.linklike{border:0;background:none;color:#385844;text-decoration:underline;cursor:pointer;font:700 19px Caveat,cursive;padding:6px}.passport-card button:disabled{opacity:.6;cursor:wait}.passport-card .passport-close{position:absolute;right:10px;top:7px;border:0;background:none;font-size:28px;cursor:pointer;color:#59452e}.passport-status{min-height:22px;font:600 19px/1.3 Caveat,cursive;color:#35523b;margin-top:12px}.passport-status.error{color:#8d3428}.passport-hint{font:12px/1.5 Georgia,serif;color:#68523c}.passport-card [hidden]{display:none!important}
+@media(max-width:700px){.passport-button{top:58px;left:auto;right:10px;font-size:21px;padding:7px 12px}.passport-card{padding:22px}}
+/* Keep the two navigation buttons neatly stacked on all screen sizes. */
+.passport-button{left:auto;right:18px;top:78px}
+@media(max-width:700px){.passport-button{left:auto;right:10px;top:65px}}
 </style></head><body>
 <iframe id="world" title="Explore Of Little Things and Faraway Places" src="https://endlesspaper.net/xp?id=83N1WaVYnKvRW" allow="fullscreen" allowfullscreen></iframe>
 <button id="openJournal" class="journal-button" type="button" aria-haspopup="dialog" aria-controls="journal">✧ Traveler's Journal</button>
+
+<button id="openPassport" class="passport-button" type="button" aria-haspopup="dialog" aria-controls="passportDialog">✧ Explorer's Passport</button>
+<div class="passport-veil" id="passportDialog" role="dialog" aria-modal="true" aria-labelledby="passportTitle" aria-hidden="true">
+ <div class="passport-card">
+  <button id="closePassport" class="passport-close" type="button" aria-label="Close passport">×</button>
+  <div class="eyebrow">The Explorer's Outpost</div><h2 id="passportTitle">Explorer's Passport</h2>
+  <p class="passport-hint">Every traveler has a story. You can always explore as a guest.</p>
+  <div id="passportGuest">
+   <form id="passportForm">
+    <div id="nameGroup"><label for="explorerName">Explorer name</label><input id="explorerName" maxlength="40" minlength="1" autocomplete="nickname" placeholder="Little Wanderer"></div>
+    <label for="explorerEmail">Email address</label><input id="explorerEmail" type="email" autocomplete="email" required placeholder="you@example.com">
+    <label for="explorerPassword">Password</label><input id="explorerPassword" type="password" minlength="6" autocomplete="new-password" required placeholder="At least 6 characters">
+    <button id="passportSubmit" class="action" type="submit">Create my Passport</button>
+   </form>
+   <button id="passportMode" class="linklike" type="button">Already a member? Sign in</button>
+   <button id="passportReset" class="linklike" type="button">Forgot password?</button>
+  </div>
+  <div id="passportMember" hidden><p>Welcome back, <strong id="memberName"></strong>!</p><p class="passport-hint">Your Passport is active. Discovery checkboxes still save in this browser until we add account syncing.</p><button id="passportSignOut" class="action" type="button">Sign out</button></div>
+  <div id="passportStatus" class="passport-status" role="status" aria-live="polite"></div>
+ </div>
+</div>
 <div class="veil" id="journal" role="dialog" aria-modal="true" aria-labelledby="journalTitle" aria-hidden="true"><div class="book-shell"><button id="closeJournal" class="close" type="button" aria-label="Close journal">×</button><div class="book">
 <section class="page left"><div class="eyebrow">A record of peculiar places</div><h1 id="journalTitle">Traveler's Journal</h1><p>Of Little Things and Faraway Places</p><div class="rule"></div><p class="note">Some places are easy to find.<br>Others are waiting to be noticed.</p><p>These pages contain notes gathered along the way. Take what you need, and keep your eyes open.</p><div class="foot">— A fellow traveler</div><span class="pressed" aria-hidden="true">❧</span></section>
 <section class="page right"><div class="eyebrow">Turn to a section</div><nav class="tabs" aria-label="Journal sections"><button class="tab" data-section="discoveries" aria-selected="true">Discoveries</button><button class="tab" data-section="mysteries" aria-selected="false">Mysteries</button><button class="tab" data-section="worlds" aria-selected="false">Places</button><button class="tab" data-section="notes" aria-selected="false">Field Notes</button></nav><div id="sectionContent" aria-live="polite"></div></section>
@@ -123,5 +154,46 @@ const dialog=document.getElementById('journal'),openBtn=document.getElementById(
 function showSection(name){const section=content[name];sectionContent.replaceChildren();const h=document.createElement('h2');h.textContent=section.title;sectionContent.append(h);if(name==='discoveries'){addDuckDiscovery();addColorDiscovery();}if(name==='worlds')addWorldDirectory();if(name==='notes')addFieldNotes();for(const [heading,body] of section.entries){const div=document.createElement('div');div.className='entry';const strong=document.createElement('strong');strong.textContent=heading;const p=document.createElement('p');p.textContent=body;div.append(strong,p);sectionContent.append(div)}document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.section===name)))}
 function setOpen(isOpen){dialog.classList.toggle('open',isOpen);dialog.setAttribute('aria-hidden',String(!isOpen));if(isOpen)closeBtn.focus();else openBtn.focus()}
 openBtn.addEventListener('click',()=>setOpen(true));closeBtn.addEventListener('click',()=>setOpen(false));document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showSection(b.dataset.section)));dialog.addEventListener('click',e=>{if(e.target===dialog)setOpen(false)});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dialog.classList.contains('open'))setOpen(false);if(e.key==='Tab'&&dialog.classList.contains('open')){const focusables=[closeBtn,...dialog.querySelectorAll('.tab')];const first=focusables[0],last=focusables.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});showSection('discoveries');
+</script>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const supabase = createClient('https://nlhfvjtewhjzabfavtei.supabase.co','sb_publishable_q3mef2GDvLz_PA64ZB5V1Q_0wgv8Qp1');
+const $=id=>document.getElementById(id);
+const popup=$('passportDialog'), status=$('passportStatus'), form=$('passportForm');
+let mode='signup', activeUser=null;
+function message(text,error=false){status.textContent=text;status.classList.toggle('error',error)}
+function setMode(next){mode=next;form.hidden=next==='reset';$('nameGroup').hidden=next!=='signup';$('passportSubmit').textContent=next==='signup'?'Create my Passport':'Sign in';$('passportMode').textContent=next==='signup'?'Already a member? Sign in':'New here? Create a Passport';$('explorerPassword').autocomplete=next==='signup'?'new-password':'current-password';message('')}
+function openPassport(open){popup.classList.toggle('open',open);popup.setAttribute('aria-hidden',String(!open));if(open){$('closePassport').focus()}else{$('openPassport').focus()}}
+$('openPassport').addEventListener('click',()=>openPassport(true));$('closePassport').addEventListener('click',()=>openPassport(false));popup.addEventListener('click',e=>{if(e.target===popup)openPassport(false)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&popup.classList.contains('open'))openPassport(false)});
+$('passportMode').addEventListener('click',()=>setMode(mode==='signup'?'signin':'signup'));
+$('passportReset').addEventListener('click',async()=>{const email=$('explorerEmail').value.trim();if(!email){message('Enter your email address first.',true);return}message('Sending password reset email…');const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});message(error?error.message:'If an account exists, a reset email is on its way.',!!error)});
+async function ensureProfile(user,requestedName){
+ const {data,error}=await supabase.from('explorer_profiles').select('explorer_name').eq('id',user.id).maybeSingle();
+ if(error)throw error;
+ if(data)return data.explorer_name;
+ const fallback=(requestedName||user.user_metadata?.explorer_name||'New Explorer').trim().slice(0,40)||'New Explorer';
+ const result=await supabase.from('explorer_profiles').insert({id:user.id,explorer_name:fallback}).select('explorer_name').single();
+ if(result.error)throw result.error;
+ return result.data.explorer_name;
+}
+async function renderUser(user){activeUser=user;$('passportGuest').hidden=!!user;$('passportMember').hidden=!user;$('openPassport').textContent=user?'✧ My Passport':"✧ Explorer's Passport";if(user){try{$('memberName').textContent=await ensureProfile(user)}catch(e){$('memberName').textContent='Explorer';message('Signed in, but profile could not load: '+e.message,true)}}}
+form.addEventListener('submit',async e=>{
+ e.preventDefault();const email=$('explorerEmail').value.trim(),password=$('explorerPassword').value,name=$('explorerName').value.trim();
+ if(mode==='recovery'){const {error}=await supabase.auth.updateUser({password});message(error?error.message:'Password updated! Your Passport is ready.',!!error);if(!error){mode='signin';$('passportMode').hidden=false;$('passportReset').hidden=false;$('explorerEmail').hidden=false;$('explorerEmail').parentElement.querySelector('label[for=explorerEmail]').hidden=false;const {data}=await supabase.auth.getUser();if(data.user)await renderUser(data.user)}return}if(mode==='signup'&&!name){message('Choose an Explorer name first.',true);return}
+ const button=$('passportSubmit');button.disabled=true;message('Just a moment…');
+ try{
+  if(mode==='signup'){
+   const {data,error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname,data:{explorer_name:name}}});if(error)throw error;
+   if(data.session){await renderUser(data.user);message('Your Passport is ready!')}else{message('Check your email for a confirmation link, then return here to sign in.');setMode('signin');message('Check your email for a confirmation link, then return here to sign in.')}
+  }else{
+   const {data,error}=await supabase.auth.signInWithPassword({email,password});if(error)throw error;await renderUser(data.user);message('Welcome back!')
+  }
+ }catch(err){message(err.message||'Something went wrong. Please try again.',true)}finally{button.disabled=false}
+});
+$('passportSignOut').addEventListener('click',async()=>{const {error}=await supabase.auth.signOut();if(error)message(error.message,true);else{await renderUser(null);setMode('signin');message('Signed out. You can still explore as a guest.')}});
+supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){mode='recovery';$('passportGuest').hidden=false;$('passportMember').hidden=true;$('nameGroup').hidden=true;$('explorerEmail').parentElement.querySelector('label[for=explorerEmail]').hidden=true;$('explorerEmail').hidden=true;$('explorerPassword').value='';$('explorerPassword').autocomplete='new-password';$('passportSubmit').textContent='Set new password';$('passportMode').hidden=true;$('passportReset').hidden=true;openPassport(true);message('Enter your new password below.')}else if(event==='SIGNED_OUT'){renderUser(null)}else if(session?.user&&mode!=='recovery'){setTimeout(()=>renderUser(session.user),0)}});
+(async()=>{const {data,error}=await supabase.auth.getUser();if(data?.user)await renderUser(data.user);else if(error&&error.name!=='AuthSessionMissingError')message('Account service: '+error.message,true)})();
 </script>
 </body></html>
