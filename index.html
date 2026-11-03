@@ -22,6 +22,28 @@
 .duck-status{font:700 19px Caveat,cursive;color:#486a4d;margin:5px 0 0 30px}
 .duck-progress{font:700 23px Caveat,cursive;color:#5a4c36}
 .case-closed{margin-top:18px;padding:12px;border:2px dashed #688066;transform:rotate(-.5deg);font:600 24px/1.25 Caveat,cursive;color:#436147}
+
+/* Version 3: hand-cut paper, sketchbook ink, and softened book geometry. */
+.book{border:9px solid #5b4432;border-radius:13px 18px 12px 20px;filter:drop-shadow(2px 9px 2px #090d0a55)}
+.page{background:radial-gradient(ellipse at 15% 8%,#fff5d8a8,transparent 48%),radial-gradient(ellipse at 94% 93%,#8e67422b,transparent 40%),repeating-linear-gradient(2deg,transparent 0 15px,#694e2b0b 16px,transparent 17px 29px),linear-gradient(100deg,#d6bd91,#f2e3c1 9%,#edddb9 87%,#cbb087);}
+.page::before{content:"";position:sticky;display:block;pointer-events:none;z-index:2;height:8px;margin:-36px -42px 22px;background:repeating-linear-gradient(105deg,#60492b42 0 1px,transparent 1px 8px);opacity:.45;clip-path:polygon(0 65%,3% 35%,7% 72%,11% 25%,16% 60%,21% 40%,28% 80%,34% 35%,41% 65%,48% 20%,54% 70%,61% 38%,68% 75%,75% 30%,82% 65%,89% 27%,95% 70%,100% 30%,100% 100%,0 100%)}
+.left{border-right:3px double #9c8057;box-shadow:inset -17px 0 18px #5d41243b,inset 5px 0 9px #fff4d66e}
+.right{box-shadow:inset 19px 0 21px #60462a36,inset -7px 0 9px #6b4a281a}
+.tab{border:2px solid #786145;border-radius:4px 9px 3px 7px;box-shadow:2px 2px 0 #7a5c3b36,inset 0 1px 0 #fff4d6a0;clip-path:polygon(0 5%,6% 0,93% 2%,100% 13%,98% 91%,91% 100%,4% 97%,0 88%)}
+.tab:nth-child(3n){transform:rotate(-1.4deg)}
+.entry{border-left:2px solid #84684d;box-shadow:-3px 0 0 -2px #84684d66}
+.duck-clue,.color-clue{border-bottom:1px dashed #997e58;background:transparent;padding:13px 4px 15px 9px;margin:11px 0}
+.duck-check input,.object-check input{appearance:none;-webkit-appearance:none;width:21px;height:20px;border:2px solid #58442f;border-radius:3px 1px 4px 2px;background:#f9edcf;box-shadow:1px 1px 0 #b29b74;position:relative;cursor:pointer;flex:none}
+.duck-check input:checked::after,.object-check input:checked::after{content:'✓';position:absolute;left:1px;top:-10px;font:700 29px Caveat,cursive;color:#3d674d;transform:rotate(-12deg)}
+.duck-check input:focus-visible,.object-check input:focus-visible{outline:3px solid #7d9567;outline-offset:3px}
+.color-clue-title{font:700 27px/1.2 Caveat,cursive;color:#473a2c}
+.color-instruction{font:700 19px/1.2 Caveat,cursive;color:#846446;margin:7px 0}
+.object-checks{display:flex;flex-wrap:wrap;gap:12px 18px;margin:10px 0}
+.object-check{display:inline-flex;gap:6px;align-items:center;font:600 18px Caveat,cursive;color:#5b4935;cursor:pointer}
+.object-check input{margin:0}
+.clue-count{font:600 18px Caveat,cursive;color:#65754e}
+.section-subtitle{font:700 22px Caveat,cursive;color:#70573a}
+@media(max-width:700px){.page::before{margin:-25px -25px 18px}.book{border-width:7px}.page{padding:25px 25px}}
 </style>
 </head>
 <body>
@@ -39,11 +61,22 @@ const duckClues=[
  {id:'daydreamer',title:'The Daydreamer',clue:"The second duck found a peaceful place to rest. Surrounded by colorful blooms, he's perfectly content watching the world go by."},
  {id:'homebody',title:'The Homebody',clue:"The third duck quickly grew tired of exploring. Missing his bathtub, he searched for a little water and found an unexpected place to float."}
 ];
+const colorClues=[
+ {id:'garden',title:'A Fading Garden',clue:"A resident's garden isn't looking quite as lively as it once did. Two of their beloved plants have lost more than just their sparkle.",instruction:'Find 2 grey plants.',count:2},
+ {id:'bird',title:'Odd Bird Out',clue:'Three little birds gathered for a morning splash, but one seems to have lost something rather important. Perhaps his colorful companions can help him find it.',instruction:'Find 1 grey bird.',count:1},
+ {id:'laundry',title:'Washed Out',clue:'Laundry day has taken a strange turn! A few freshly washed belongings seem to have come out looking rather dull.',instruction:'Find 3 grey clothing items.',count:3},
+ {id:'fruit',title:'Rotten Luck',clue:"Someone's fresh fruit has lost its cheerful colors. Two pieces look suspiciously different from the rest of the harvest.",instruction:'Find 2 grey fruits.',count:2},
+ {id:'party',title:'Party Pooper',clue:'The decorations were ready, but something strange happened before the celebration began. A few festive favorites have faded completely.',instruction:'Find 3 grey party supplies.',count:3}
+];
+const colorKey='explorers-outpost.discovery-002.colors.v1';
+let colorProgress={};
+try{const saved=JSON.parse(localStorage.getItem(colorKey)||'{}');if(saved&&typeof saved==='object'){for(const clue of colorClues){colorProgress[clue.id]=Array.from({length:clue.count},(_,i)=>saved[clue.id]?.[i]===true)}}}catch(e){}
+for(const clue of colorClues)if(!colorProgress[clue.id])colorProgress[clue.id]=Array(clue.count).fill(false);
 const progressKey='explorers-outpost.discovery-001.ducks.v1';
 let duckProgress={};
 try{const saved=JSON.parse(localStorage.getItem(progressKey)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved)){for(const duck of duckClues)duckProgress[duck.id]=saved[duck.id]===true}}catch(e){/* Storage may be disabled. Checkboxes still work for this visit. */}
 const content={
- discoveries:{title:'Discoveries',entries:[['The Case of the Missing Colors','Something in Bellwether has lost its color. Look closely at the little things.']]},
+ discoveries:{title:'Discoveries',entries:[]},
  mysteries:{title:'Unsolved Mysteries',entries:[['Pages yet to be filled','Some questions do not have answers. Not yet, anyway.']]},
  worlds:{title:'World Directory',entries:[['Bellwether','A city full of windows, winding stories, and things worth noticing.'],['More places await','New corners of this universe will appear as the journey continues.']]},
  notes:{title:'Field Notes',entries:[['A note from the road','This journal will grow alongside the world. Return now and then to see what has changed.']]}
@@ -70,8 +103,36 @@ function addDuckDiscovery(){
  });
  refresh();sectionContent.append(wrapper);
 }
+
+function addColorDiscovery(){
+ const wrapper=document.createElement('div');wrapper.className='entry';
+ const heading=document.createElement('strong');heading.textContent='No. 002 — The Case of the Missing Colors';wrapper.append(heading);
+ const intro=document.createElement('p');intro.textContent="Something peculiar is happening in Bellwether. I've begun noticing ordinary things losing their colors, seemingly without explanation. I've recorded five rather unusual cases around town. Perhaps you can help me make sense of them.";wrapper.append(intro);
+ const count=document.createElement('div');count.className='duck-progress';count.setAttribute('aria-live','polite');wrapper.append(count);
+ const list=document.createElement('div');wrapper.append(list);
+ const ending=document.createElement('div');ending.className='case-closed';ending.textContent="Eleven curious objects, all drained of their color. I've accounted for every one, but I still cannot explain what happened. Perhaps Bellwether is hiding something stranger than I first suspected.";wrapper.append(ending);
+ function refresh(){const total=colorClues.reduce((n,c)=>n+colorProgress[c.id].filter(Boolean).length,0);count.textContent=`Missing colors accounted for: ${total} / 11`;ending.hidden=total!==11;}
+ colorClues.forEach((clue,i)=>{
+  const item=document.createElement('div');item.className='color-clue';
+  const title=document.createElement('div');title.className='color-clue-title';title.textContent=`Clue ${i+1}: ${clue.title}`;
+  const description=document.createElement('p');description.className='duck-description';description.textContent=clue.clue;
+  const instruction=document.createElement('div');instruction.className='color-instruction';instruction.textContent=clue.instruction;
+  const checks=document.createElement('div');checks.className='object-checks';
+  const status=document.createElement('div');status.className='clue-count';
+  clue.count&&Array.from({length:clue.count},(_,j)=>{
+   const label=document.createElement('label');label.className='object-check';
+   const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=colorProgress[clue.id][j];checkbox.setAttribute('aria-label',`${clue.title}: object ${j+1} found`);
+   const labelText=document.createElement('span');labelText.textContent=clue.count===1?'Found':`No. ${j+1}`;
+   label.append(checkbox,labelText);checks.append(label);
+   checkbox.addEventListener('change',()=>{colorProgress[clue.id][j]=checkbox.checked;try{localStorage.setItem(colorKey,JSON.stringify(colorProgress))}catch(e){}updateStatus();refresh()});
+  });
+  function updateStatus(){const n=colorProgress[clue.id].filter(Boolean).length;status.textContent=n===clue.count?'✓ All found':`${n} of ${clue.count} found`}
+  updateStatus();item.append(title,description,instruction,checks,status);list.append(item);
+ });
+ refresh();sectionContent.append(wrapper);
+}
 const dialog=document.getElementById('journal'),openBtn=document.getElementById('openJournal'),closeBtn=document.getElementById('closeJournal'),sectionContent=document.getElementById('sectionContent');
-function showSection(name){const section=content[name];sectionContent.replaceChildren();const h=document.createElement('h2');h.textContent=section.title;sectionContent.append(h);if(name==='discoveries')addDuckDiscovery();for(const [heading,body] of section.entries){const div=document.createElement('div');div.className='entry';const strong=document.createElement('strong');strong.textContent=heading;const p=document.createElement('p');p.textContent=body;div.append(strong,p);sectionContent.append(div)}document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.section===name)))}
+function showSection(name){const section=content[name];sectionContent.replaceChildren();const h=document.createElement('h2');h.textContent=section.title;sectionContent.append(h);if(name==='discoveries'){addDuckDiscovery();addColorDiscovery();}for(const [heading,body] of section.entries){const div=document.createElement('div');div.className='entry';const strong=document.createElement('strong');strong.textContent=heading;const p=document.createElement('p');p.textContent=body;div.append(strong,p);sectionContent.append(div)}document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.section===name)))}
 function setOpen(isOpen){dialog.classList.toggle('open',isOpen);dialog.setAttribute('aria-hidden',String(!isOpen));if(isOpen)closeBtn.focus();else openBtn.focus()}
 openBtn.addEventListener('click',()=>setOpen(true));closeBtn.addEventListener('click',()=>setOpen(false));document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showSection(b.dataset.section)));dialog.addEventListener('click',e=>{if(e.target===dialog)setOpen(false)});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dialog.classList.contains('open'))setOpen(false);if(e.key==='Tab'&&dialog.classList.contains('open')){const focusables=[closeBtn,...dialog.querySelectorAll('.tab')];const first=focusables[0],last=focusables.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});showSection('discoveries');
 </script>
