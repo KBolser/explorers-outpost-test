@@ -8,6 +8,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{--forest:#152e27;--forest2:#284a3e;--gold:#d6b779;--paper:#eee0bd;--ink:#473a2c}*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:var(--forest);font-family:'Libre Baskerville',Georgia,serif}#world{position:fixed;inset:0;width:100%;height:100%;border:0;background:#10231e}.journal-button{position:fixed;z-index:5;top:18px;right:18px;border:1px solid #b99c64;border-radius:999px;background:#17382feF;color:#f7e9c9;padding:13px 19px;box-shadow:0 6px 25px #0007;cursor:pointer;font:700 15px 'Libre Baskerville',serif}.journal-button:hover,.journal-button:focus-visible{background:#315548;outline:2px solid var(--gold);outline-offset:3px}.veil{position:fixed;inset:0;z-index:10;background:#071610bb;display:none;align-items:center;justify-content:center;padding:24px}.veil.open{display:flex}.book-shell{position:relative;width:min(100%,980px);max-height:min(86vh,780px);display:flex;flex-direction:column}.close{position:absolute;z-index:3;right:4px;top:-47px;border:1px solid #d4b77b;border-radius:50%;width:39px;height:39px;background:#213e33;color:#f4e4c0;font-size:24px;cursor:pointer}.book{display:grid;grid-template-columns:1fr 1fr;min-height:480px;overflow:hidden;border:12px solid #604631;border-radius:16px 24px 24px 16px;box-shadow:0 20px 75px #000b, inset 0 0 0 2px #a17a4d;background:var(--paper)}.page{position:relative;overflow:auto;padding:36px 42px;color:var(--ink);background:radial-gradient(circle at 90% 20%,#fff5d9a6,transparent 45%),repeating-linear-gradient(0deg,#71512c09 0 1px,transparent 1px 6px),linear-gradient(105deg,#d1bd94,#f0e2c1 14%,#f0e2c1 85%,#d3be94)}.left{border-right:2px solid #bba47c;box-shadow:inset -15px 0 20px #6b4b251e}.right{box-shadow:inset 17px 0 25px #6b4b2524}.page:after{content:'';pointer-events:none;position:absolute;inset:0;box-shadow:inset 0 0 24px #73502b24}.eyebrow{font-size:10px;letter-spacing:.19em;text-transform:uppercase;color:#806848}.script{font-family:Caveat,cursive;font-weight:700}h1{font-size:clamp(38px,5vw,61px);line-height:1;margin:17px 0 13px}h2{font-family:Caveat,cursive;font-size:42px;margin:12px 0 18px}p{font-size:14px;line-height:1.9}.note{font:600 27px/1.2 Caveat,cursive;color:#5b513d;transform:rotate(-2deg);margin-top:35px}.rule{height:1px;background:#a9926b;margin:24px 0}.tabs{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 26px}.tab{border:1px solid #9c8159;border-radius:3px 8px 3px 3px;background:#d7c098;color:#4a3826;padding:9px 11px;cursor:pointer;font:600 20px Caveat,cursive}.tab[aria-selected=true]{background:#4a644e;color:#fff1d3;border-color:#304b3c}.tab:focus-visible,.close:focus-visible{outline:3px solid #d9aa56;outline-offset:2px}.entry{border-left:2px solid #9b815a;padding:0 0 0 15px;margin:24px 0}.entry strong{font:700 28px Caveat,cursive}.entry p{margin:4px 0 0}.foot{font:600 21px Caveat,cursive;color:#7c6648;margin-top:35px}.pressed{position:absolute;right:26px;bottom:24px;font-size:47px;opacity:.4;transform:rotate(22deg)}.mobile-only{display:none}@media(max-width:700px){.veil{padding:14px}.book-shell{max-height:88vh}.book{display:block;min-height:0;border-width:8px;border-radius:12px;overflow:auto}.page{padding:25px 25px;min-height:0}.left{border-right:0;border-bottom:1px solid #c4ae88}.right{box-shadow:none}.mobile-only{display:block}.journal-button{top:12px;right:12px;padding:12px 14px;font-size:12px}h1{font-size:42px}h2{font-size:36px}.note{margin-top:12px}.pressed{display:none}}
+
+/* Slightly irregular, inked details to echo the illustrated world. */
+.book{border-radius:17px 12px 22px 11px;}
+.tab{border-radius:7px 2px 8px 3px;transform:rotate(-.5deg)}
+.tab:nth-child(even){transform:rotate(.8deg)}
+.duck-clue{margin:15px 0;padding:12px 10px 12px 14px;border-bottom:1px dashed #a48a65;background:#f4e6c522}
+.duck-check{display:flex;align-items:flex-start;gap:11px;cursor:pointer}
+.duck-check input{margin-top:7px;width:19px;height:19px;accent-color:#45684d;flex:none;cursor:pointer}
+.duck-name{font:700 27px/1.1 Caveat,cursive}
+.duck-description{font:14px/1.7 'Libre Baskerville',Georgia,serif;margin:7px 0 0}
+.duck-clue.found .duck-name{text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:#63815a}
+.duck-status{font:700 19px Caveat,cursive;color:#486a4d;margin:5px 0 0 30px}
+.duck-progress{font:700 23px Caveat,cursive;color:#5a4c36}
+.case-closed{margin-top:18px;padding:12px;border:2px dashed #688066;transform:rotate(-.5deg);font:600 24px/1.25 Caveat,cursive;color:#436147}
 </style>
 </head>
 <body>
@@ -20,14 +34,44 @@
 <section class="page right"><div class="eyebrow">Turn to a section</div><nav class="tabs" aria-label="Journal sections"><button class="tab" data-section="discoveries" aria-selected="true">Discoveries</button><button class="tab" data-section="mysteries" aria-selected="false">Mysteries</button><button class="tab" data-section="worlds" aria-selected="false">Places</button><button class="tab" data-section="notes" aria-selected="false">Field Notes</button></nav><div id="sectionContent" aria-live="polite"></div></section>
 </div></div></div>
 <script>
+const duckClues=[
+ {id:'adventurer',title:'The Adventurer',clue:"The first duck wanted to see the city from above. He's found himself a lovely view, though his new perch is a little warmer than expected."},
+ {id:'daydreamer',title:'The Daydreamer',clue:"The second duck found a peaceful place to rest. Surrounded by colorful blooms, he's perfectly content watching the world go by."},
+ {id:'homebody',title:'The Homebody',clue:"The third duck quickly grew tired of exploring. Missing his bathtub, he searched for a little water and found an unexpected place to float."}
+];
+const progressKey='explorers-outpost.discovery-001.ducks.v1';
+let duckProgress={};
+try{const saved=JSON.parse(localStorage.getItem(progressKey)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved)){for(const duck of duckClues)duckProgress[duck.id]=saved[duck.id]===true}}catch(e){/* Storage may be disabled. Checkboxes still work for this visit. */}
 const content={
- discoveries:{title:'Discoveries',entries:[['The Great Duck Escape','A curious number of ducks have found their way into Bellwether. How many can you spot?'],['The Case of the Missing Colors','Something in Bellwether has lost its color. Look closely at the little things.']]},
+ discoveries:{title:'Discoveries',entries:[['The Case of the Missing Colors','Something in Bellwether has lost its color. Look closely at the little things.']]},
  mysteries:{title:'Unsolved Mysteries',entries:[['Pages yet to be filled','Some questions do not have answers. Not yet, anyway.']]},
  worlds:{title:'World Directory',entries:[['Bellwether','A city full of windows, winding stories, and things worth noticing.'],['More places await','New corners of this universe will appear as the journey continues.']]},
  notes:{title:'Field Notes',entries:[['A note from the road','This journal will grow alongside the world. Return now and then to see what has changed.']]}
 };
+function addDuckDiscovery(){
+ const wrapper=document.createElement('div');wrapper.className='entry';
+ const heading=document.createElement('strong');heading.textContent='No. 001 — The Great Duck Escape';wrapper.append(heading);
+ const intro=document.createElement('p');intro.textContent="I've encountered a rather peculiar situation in Bellwether. Three little bath-time companions have gone missing. Their owner insists they were here only moments ago, but I suspect these adventurous ducklings had other plans. I've gathered a few observations that might help us find them.";wrapper.append(intro);
+ const count=document.createElement('div');count.className='duck-progress';count.setAttribute('aria-live','polite');wrapper.append(count);
+ const list=document.createElement('div');wrapper.append(list);
+ const ending=document.createElement('div');ending.className='case-closed';ending.textContent="Well, that settles it. Three ducks, three rather questionable decisions, and not a single one interested in returning to the bathtub. I'll consider this case closed.";wrapper.append(ending);
+ function refresh(){const total=duckClues.filter(d=>duckProgress[d.id]).length;count.textContent=`Ducks accounted for: ${total} / ${duckClues.length}`;ending.hidden=total!==duckClues.length;}
+ duckClues.forEach((duck,i)=>{
+  const item=document.createElement('div');item.className='duck-clue';
+  const label=document.createElement('label');label.className='duck-check';
+  const input=document.createElement('input');input.type='checkbox';input.checked=!!duckProgress[duck.id];input.setAttribute('aria-label',`Mark ${duck.title} as found`);
+  const words=document.createElement('span');const title=document.createElement('span');title.className='duck-name';title.textContent=`Clue ${i+1}: ${duck.title}`;
+  const clue=document.createElement('p');clue.className='duck-description';clue.textContent=duck.clue;
+  words.append(title,clue);label.append(input,words);item.append(label);
+  const status=document.createElement('div');status.className='duck-status';item.append(status);
+  function updateItem(){item.classList.toggle('found',input.checked);status.textContent=input.checked?'✓ Found and recorded':'';}
+  input.addEventListener('change',()=>{duckProgress[duck.id]=input.checked;try{localStorage.setItem(progressKey,JSON.stringify(duckProgress))}catch(e){}updateItem();refresh()});
+  updateItem();list.append(item);
+ });
+ refresh();sectionContent.append(wrapper);
+}
 const dialog=document.getElementById('journal'),openBtn=document.getElementById('openJournal'),closeBtn=document.getElementById('closeJournal'),sectionContent=document.getElementById('sectionContent');
-function showSection(name){const section=content[name];sectionContent.replaceChildren();const h=document.createElement('h2');h.textContent=section.title;sectionContent.append(h);for(const [heading,body] of section.entries){const div=document.createElement('div');div.className='entry';const strong=document.createElement('strong');strong.textContent=heading;const p=document.createElement('p');p.textContent=body;div.append(strong,p);sectionContent.append(div)}document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.section===name)))}
+function showSection(name){const section=content[name];sectionContent.replaceChildren();const h=document.createElement('h2');h.textContent=section.title;sectionContent.append(h);if(name==='discoveries')addDuckDiscovery();for(const [heading,body] of section.entries){const div=document.createElement('div');div.className='entry';const strong=document.createElement('strong');strong.textContent=heading;const p=document.createElement('p');p.textContent=body;div.append(strong,p);sectionContent.append(div)}document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.section===name)))}
 function setOpen(isOpen){dialog.classList.toggle('open',isOpen);dialog.setAttribute('aria-hidden',String(!isOpen));if(isOpen)closeBtn.focus();else openBtn.focus()}
 openBtn.addEventListener('click',()=>setOpen(true));closeBtn.addEventListener('click',()=>setOpen(false));document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showSection(b.dataset.section)));dialog.addEventListener('click',e=>{if(e.target===dialog)setOpen(false)});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dialog.classList.contains('open'))setOpen(false);if(e.key==='Tab'&&dialog.classList.contains('open')){const focusables=[closeBtn,...dialog.querySelectorAll('.tab')];const first=focusables[0],last=focusables.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});showSection('discoveries');
 </script>
