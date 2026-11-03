@@ -55,7 +55,7 @@
    <button id="passportMode" class="linklike" type="button">Already a member? Sign in</button>
    <button id="passportReset" class="linklike" type="button">Forgot password?</button>
   </div>
-  <div id="passportMember" hidden><p>Welcome back, <strong id="memberName"></strong>!</p><p class="passport-hint">Your Passport is active. Discovery checkboxes still save in this browser until we add account syncing.</p><button id="passportSignOut" class="action" type="button">Sign out</button></div>
+  <div id="passportMember" hidden><p>Welcome back, <strong id="memberName"></strong>!</p><p class="passport-hint">Your Passport is active. Your discoveries are saved to your Passport and can follow you between devices.</p><button id="passportSignOut" class="action" type="button">Sign out</button></div>
   <div id="passportStatus" class="passport-status" role="status" aria-live="polite"></div>
  </div>
 </div>
@@ -106,7 +106,7 @@ function addDuckDiscovery(){
   words.append(title,clue);label.append(input,words);item.append(label);
   const status=document.createElement('div');status.className='duck-status';item.append(status);
   function updateItem(){item.classList.toggle('found',input.checked);status.textContent=input.checked?'✓ Found and recorded':'';}
-  input.addEventListener('change',()=>{duckProgress[duck.id]=input.checked;try{localStorage.setItem(progressKey,JSON.stringify(duckProgress))}catch(e){}updateItem();refresh()});
+  input.addEventListener('change',()=>{duckProgress[duck.id]=input.checked;if(!window.explorerCloudActive){try{localStorage.setItem(progressKey,JSON.stringify(duckProgress))}catch(e){}}window.saveExplorerProgress?.();updateItem();refresh()});
   updateItem();list.append(item);
  });
  refresh();sectionContent.append(wrapper);
@@ -132,7 +132,7 @@ function addColorDiscovery(){
    const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=colorProgress[clue.id][j];checkbox.setAttribute('aria-label',`${clue.title}: object ${j+1} found`);
    const labelText=document.createElement('span');labelText.textContent=clue.count===1?'Found':`No. ${j+1}`;
    label.append(checkbox,labelText);checks.append(label);
-   checkbox.addEventListener('change',()=>{colorProgress[clue.id][j]=checkbox.checked;try{localStorage.setItem(colorKey,JSON.stringify(colorProgress))}catch(e){}updateStatus();refresh()});
+   checkbox.addEventListener('change',()=>{colorProgress[clue.id][j]=checkbox.checked;if(!window.explorerCloudActive){try{localStorage.setItem(colorKey,JSON.stringify(colorProgress))}catch(e){}}window.saveExplorerProgress?.();updateStatus();refresh()});
   });
   function updateStatus(){const n=colorProgress[clue.id].filter(Boolean).length;status.textContent=n===clue.count?'✓ All found':`${n} of ${clue.count} found`}
   updateStatus();item.append(title,description,instruction,checks,status);list.append(item);
@@ -176,6 +176,10 @@ const dialog=document.getElementById('journal'),openBtn=document.getElementById(
 function showSection(name){const section=content[name];sectionContent.replaceChildren();const h=document.createElement('h2');h.textContent=section.title;sectionContent.append(h);if(name==='discoveries'){addDuckDiscovery();addColorDiscovery();}if(name==='worlds')addWorldDirectory();if(name==='notes')addFieldNotes();for(const [heading,body] of section.entries){const div=document.createElement('div');div.className='entry';const strong=document.createElement('strong');strong.textContent=heading;const p=document.createElement('p');p.textContent=body;div.append(strong,p);sectionContent.append(div)}document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.section===name)))}
 function setOpen(isOpen){dialog.classList.toggle('open',isOpen);dialog.setAttribute('aria-hidden',String(!isOpen));if(isOpen)closeBtn.focus();else openBtn.focus()}
 openBtn.addEventListener('click',()=>setOpen(true));closeBtn.addEventListener('click',()=>setOpen(false));document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showSection(b.dataset.section)));dialog.addEventListener('click',e=>{if(e.target===dialog)setOpen(false)});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dialog.classList.contains('open'))setOpen(false);if(e.key==='Tab'&&dialog.classList.contains('open')){const focusables=[closeBtn,...dialog.querySelectorAll('.tab')];const first=focusables[0],last=focusables.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});showSection('discoveries');
+window.explorerProgressBridge={
+ snapshot(){return {ducks:Object.fromEntries(duckClues.map(d=>[d.id,!!duckProgress[d.id]])),colors:Object.fromEntries(colorClues.map(c=>[c.id,colorProgress[c.id].map(Boolean)]))}},
+ apply(progress){const d=progress?.ducks||{},c=progress?.colors||{};for(const duck of duckClues)duckProgress[duck.id]=d[duck.id]===true;for(const clue of colorClues)colorProgress[clue.id]=Array.from({length:clue.count},(_,i)=>c[clue.id]?.[i]===true);if(document.querySelector('.tab[data-section="discoveries"]')?.getAttribute('aria-selected')==='true')showSection('discoveries')}
+};
 </script>
 
 <script type="module">
@@ -183,6 +187,51 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const supabase = createClient('https://nlhfvjtewhjzabfavtei.supabase.co','sb_publishable_q3mef2GDvLz_PA64ZB5V1Q_0wgv8Qp1');
 const $=id=>document.getElementById(id);
 const popup=$('passportDialog'), status=$('passportStatus'), form=$('passportForm');
+// Guest progress stays on this browser. Signed-in progress belongs to the account.
+let cloudUserId=null, cloudReady=false, cloudGeneration=0, writeChain=Promise.resolve();
+let guestSnapshot=null;
+const bridge=window.explorerProgressBridge;
+window.explorerCloudActive=false;
+function progressMessage(text,isError=false){message(text,isError)}
+async function loadExplorerProgress(user){
+ const generation=++cloudGeneration;
+ cloudReady=false;
+ const switching=cloudUserId!==user.id;
+ if(switching){
+  if(!cloudUserId)guestSnapshot=bridge.snapshot();
+  cloudUserId=user.id;
+ }
+ window.explorerCloudActive=true;
+ const {data,error}=await supabase.from('explorer_progress').select('progress').eq('user_id',user.id).maybeSingle();
+ if(generation!==cloudGeneration)return;
+ if(error){progressMessage('Signed in, but discoveries could not sync: '+error.message,true);return}
+ if(data){bridge.apply(data.progress||{});cloudReady=true;return}
+ // On the first login, preserve progress from this browser rather than erase it.
+ const initial=guestSnapshot||bridge.snapshot();
+ const result=await supabase.from('explorer_progress').upsert({user_id:user.id,progress:initial,updated_at:new Date().toISOString()},{onConflict:'user_id',ignoreDuplicates:true});
+ if(generation!==cloudGeneration)return;
+ if(result.error){progressMessage('Discoveries could not be initialized: '+result.error.message,true);return}
+ // Another tab may have created the row; fetch the canonical account copy.
+ const latest=await supabase.from('explorer_progress').select('progress').eq('user_id',user.id).maybeSingle();
+ if(generation!==cloudGeneration)return;
+ if(latest.error){progressMessage('Discoveries could not load: '+latest.error.message,true);return}
+ bridge.apply(latest.data?.progress||initial);cloudReady=true;
+}
+window.saveExplorerProgress=()=>{
+ if(!cloudUserId)return;
+ if(!cloudReady){progressMessage('Still connecting your Passport. Please try that checkbox again in a moment.',true);return}
+ const userId=cloudUserId, generation=cloudGeneration, snapshot=bridge.snapshot();
+ writeChain=writeChain.catch(()=>{}).then(async()=>{
+  if(generation!==cloudGeneration||userId!==cloudUserId)return;
+  const {error}=await supabase.from('explorer_progress').upsert({user_id:userId,progress:snapshot,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  if(error&&generation===cloudGeneration)progressMessage('Could not save discoveries. Check your connection and try again: '+error.message,true);
+ });
+};
+function leaveExplorerProgress(){
+ ++cloudGeneration;cloudReady=false;cloudUserId=null;window.explorerCloudActive=false;
+ if(guestSnapshot){bridge.apply(guestSnapshot);guestSnapshot=null}
+}
+
 let mode='signup', activeUser=null;
 function message(text,error=false){status.textContent=text;status.classList.toggle('error',error)}
 function setMode(next){mode=next;form.hidden=next==='reset';$('nameGroup').hidden=next!=='signup';$('passportSubmit').textContent=next==='signup'?'Create my Passport':'Sign in';$('passportMode').textContent=next==='signup'?'Already a member? Sign in':'New here? Create a Passport';$('explorerPassword').autocomplete=next==='signup'?'new-password':'current-password';message('')}
@@ -196,11 +245,11 @@ async function ensureProfile(user,requestedName){
  if(error)throw error;
  if(data)return data.explorer_name;
  const fallback=(requestedName||user.user_metadata?.explorer_name||'New Explorer').trim().slice(0,40)||'New Explorer';
- const result=await supabase.from('explorer_profiles').insert({id:user.id,explorer_name:fallback}).select('explorer_name').single();
+ const result=await supabase.from('explorer_profiles').upsert({id:user.id,explorer_name:fallback},{onConflict:'id',ignoreDuplicates:true}).select('explorer_name').maybeSingle();
  if(result.error)throw result.error;
- return result.data.explorer_name;
+ if(result.data)return result.data.explorer_name;const retry=await supabase.from('explorer_profiles').select('explorer_name').eq('id',user.id).single();if(retry.error)throw retry.error;return retry.data.explorer_name;
 }
-async function renderUser(user){activeUser=user;$('passportGuest').hidden=!!user;$('passportMember').hidden=!user;$('openPassport').textContent=user?'✧ My Passport':"✧ Explorer's Passport";if(user){try{$('memberName').textContent=await ensureProfile(user)}catch(e){$('memberName').textContent='Explorer';message('Signed in, but profile could not load: '+e.message,true)}}}
+async function renderUser(user){activeUser=user;if(user){if(cloudUserId!==user.id||!cloudReady)await loadExplorerProgress(user)}else if(cloudUserId)leaveExplorerProgress();$('passportGuest').hidden=!!user;$('passportMember').hidden=!user;$('openPassport').textContent=user?'✧ My Passport':"✧ Explorer's Passport";if(user){try{$('memberName').textContent=await ensureProfile(user)}catch(e){$('memberName').textContent='Explorer';message('Signed in, but profile could not load: '+e.message,true)}}}
 form.addEventListener('submit',async e=>{
  e.preventDefault();const email=$('explorerEmail').value.trim(),password=$('explorerPassword').value,name=$('explorerName').value.trim();
  if(mode==='recovery'){const {error}=await supabase.auth.updateUser({password});message(error?error.message:'Password updated! Your Passport is ready.',!!error);if(!error){mode='signin';$('passportMode').hidden=false;$('passportReset').hidden=false;$('explorerEmail').hidden=false;$('explorerEmail').parentElement.querySelector('label[for=explorerEmail]').hidden=false;const {data}=await supabase.auth.getUser();if(data.user)await renderUser(data.user)}return}if(mode==='signup'&&!name){message('Choose an Explorer name first.',true);return}
