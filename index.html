@@ -188,7 +188,21 @@ button.compass-destination:hover{background:#fff9eb}
 button.compass-destination:hover{transform:translateX(3px);background:#fff8e7}
 .compass-card h2{letter-spacing:.3px}
 </style>
-</head><body>
+<style id="passport-stamps-v17">
+.passport-stamps{margin:17px 0 12px;padding:15px 13px;border:1px solid #a58a63;border-radius:11px;background:linear-gradient(135deg,#f9edce,#e8d4aa);color:#4d3927;text-align:center}
+.passport-stamps h3{font:700 27px Caveat,cursive;margin:0 0 5px}
+.passport-stamps p{font:14px Kalam,cursive;margin:3px 0 10px}
+.stamp-art{position:relative;margin:8px auto;width:125px;height:125px;border:3px dashed #98684c;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#91644c;transform:rotate(-10deg);opacity:.5;transition:transform .45s,opacity .45s}
+.stamp-art.claimed{opacity:1;transform:rotate(-9deg);border:4px double #8c4e42;color:#8c4e42;box-shadow:inset 0 0 0 5px #ead4aa,inset 0 0 0 7px #8c4e42}
+.stamp-art svg{width:75px;height:54px}
+.stamp-art b{font:700 17px Caveat,cursive;letter-spacing:1px}
+.stamp-art small{font:11px Kalam,cursive}
+.stamp-art:not(.claimed) svg{filter:grayscale(1)}
+.stamp-press{background:#4c4934;color:#fff2d4;border:1px solid #ae9265;border-radius:8px;padding:9px 19px;font:700 17px Kalam,cursive;cursor:pointer}
+.stamp-press:disabled{opacity:.55;cursor:default}
+.stamp-press:not(:disabled):hover{background:#665a3e}
+.stamp-status{font:13px Kalam,cursive;min-height:18px;margin-top:6px}
+</style></head><body>
 <div id="world" class="ep-webxp" data-webxp-url="https://endlesspaper.net/xp?id=83N1WaVYnKvRW" data-webxp-show-navbar="false" aria-label="Explore Of Little Things and Faraway Places"></div>
 
 <nav class="explorer-kit" id="explorerKit" aria-label="Explorer's toolkit">
@@ -230,7 +244,16 @@ button.compass-destination:hover{transform:translateX(3px);background:#fff8e7}
    <button id="passportReset" class="linklike" type="button">Forgot password?</button>
   </div>
   <div id="passportMember" hidden><p>Welcome back, <strong id="memberName"></strong>!</p><p class="passport-hint">Your Passport is active. Your discoveries are saved to your Passport and can follow you between devices.</p><button id="passportSignOut" class="action" type="button">Sign out</button></div>
-  <div id="passportStatus" class="passport-status" role="status" aria-live="polite"></div>
+<section class="passport-stamps" aria-labelledby="stampHeading">
+<h3 id="stampHeading">Places I've Been</h3>
+<p>Every place leaves its mark on a traveler.</p>
+<div id="bellwetherStamp" class="stamp-art" aria-label="Bellwether stamp not yet claimed">
+<svg viewBox="0 0 90 65" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M7 55H83M15 55V31L29 21L43 31V55M49 55V18L65 8L81 18V55M52 18H78M22 38h8v9h-8zM55 28h8v8h-8zM69 28h8v8h-8zM35 55V38h6v17M11 31l18-14 18 14M45 18L65 4l20 14"/><path d="M3 55q8-12 15 0M76 55q8-12 12 0"/></svg>
+<b>BELLWETHER</b><small id="stampSealText">UNSTAMPED</small>
+</div>
+<button id="pressBellwetherStamp" class="stamp-press" type="button" disabled>Undiscovered</button>
+<div id="stampStatus" class="stamp-status" role="status"></div>
+</section>  <div id="passportStatus" class="passport-status" role="status" aria-live="polite"></div>
  </div>
 </div>
 <div class="veil" id="journal" role="dialog" aria-modal="true" aria-labelledby="journalTitle" aria-hidden="true"><div class="book-shell"><button id="closeJournal" class="close" type="button" aria-label="Close journal">×</button><div class="book">
@@ -369,9 +392,17 @@ const dialog=document.getElementById('journal'),openBtn=document.getElementById(
 function showSection(name){const section=content[name];sectionContent.replaceChildren();const h=document.createElement('h2');h.textContent=section.title;sectionContent.append(h);if(name==='discoveries'){addDuckDiscovery();addColorDiscovery();}if(name==='worlds')addWorldDirectory();if(name==='notes')addFieldNotes();for(const [heading,body] of section.entries){const div=document.createElement('div');div.className='entry';const strong=document.createElement('strong');strong.textContent=heading;const p=document.createElement('p');p.textContent=body;div.append(strong,p);sectionContent.append(div)}document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.section===name)))}
 function setOpen(isOpen){dialog.classList.toggle('open',isOpen);dialog.setAttribute('aria-hidden',String(!isOpen));if(isOpen)closeBtn.focus();else openBtn.focus()}
 openBtn.addEventListener('click',()=>setOpen(true));closeBtn.addEventListener('click',()=>setOpen(false));document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showSection(b.dataset.section)));dialog.addEventListener('click',e=>{if(e.target===dialog)setOpen(false)});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dialog.classList.contains('open'))setOpen(false);if(e.key==='Tab'&&dialog.classList.contains('open')){const focusables=[closeBtn,...dialog.querySelectorAll('.tab')];const first=focusables[0],last=focusables.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});showSection('discoveries');
+const STAMP_GUEST_KEY='outpost-bellwether-stamp-v17';
+let bellwetherStamped=false;
+try{bellwetherStamped=localStorage.getItem(STAMP_GUEST_KEY)==='true'}catch(_){}
+window.explorerPassportStamps={
+ get(){return bellwetherStamped},
+ apply(value){bellwetherStamped=value===true;window.dispatchEvent(new Event('outpost-stamp-changed'))},
+ claim(){if(bellwetherStamped)return;bellwetherStamped=true;try{localStorage.setItem(STAMP_GUEST_KEY,'true')}catch(_){};window.dispatchEvent(new Event('outpost-stamp-changed'));if(window.explorerCloudActive&&window.saveExplorerProgress)window.saveExplorerProgress()}
+};
 window.explorerProgressBridge={
- snapshot(){return {ducks:Object.fromEntries(duckClues.map(d=>[d.id,!!duckProgress[d.id]])),colors:Object.fromEntries(colorClues.map(c=>[c.id,colorProgress[c.id].map(Boolean)])),fieldRecords:window.explorerFieldNotes.get()}},
- apply(progress){const d=progress?.ducks||{},c=progress?.colors||{};window.explorerFieldNotes.apply(progress?.fieldRecords||[]);for(const duck of duckClues)duckProgress[duck.id]=d[duck.id]===true;for(const clue of colorClues)colorProgress[clue.id]=Array.from({length:clue.count},(_,i)=>c[clue.id]?.[i]===true);if(document.querySelector('.tab[data-section="discoveries"]')?.getAttribute('aria-selected')==='true')showSection('discoveries')}
+ snapshot(){return {ducks:Object.fromEntries(duckClues.map(d=>[d.id,!!duckProgress[d.id]])),colors:Object.fromEntries(colorClues.map(c=>[c.id,colorProgress[c.id].map(Boolean)])),fieldRecords:window.explorerFieldNotes.get(),stamps:{bellwether:window.explorerPassportStamps.get()}}},
+ apply(progress){const d=progress?.ducks||{},c=progress?.colors||{};window.explorerFieldNotes.apply(progress?.fieldRecords||[]);window.explorerPassportStamps.apply(progress?.stamps?.bellwether===true);for(const duck of duckClues)duckProgress[duck.id]=d[duck.id]===true;for(const clue of colorClues)colorProgress[clue.id]=Array.from({length:clue.count},(_,i)=>c[clue.id]?.[i]===true);if(document.querySelector('.tab[data-section="discoveries"]')?.getAttribute('aria-selected')==='true')showSection('discoveries')}
 };
 </script>
 
@@ -382,7 +413,7 @@ const $=id=>document.getElementById(id);
 const popup=$('passportDialog'), status=$('passportStatus'), form=$('passportForm');
 // Guest progress stays on this browser. Signed-in progress belongs to the account.
 let cloudUserId=null, cloudReady=false, cloudGeneration=0, writeChain=Promise.resolve();
-let guestSnapshot=null,guestFieldSnapshot=null;
+let guestSnapshot=null,guestFieldSnapshot=null,guestStampSnapshot=null;
 const bridge=window.explorerProgressBridge;
 window.explorerCloudActive=false;
 function progressMessage(text,isError=false){message(text,isError)}
@@ -391,7 +422,7 @@ async function loadExplorerProgress(user){
  cloudReady=false;
  const switching=cloudUserId!==user.id;
  if(switching){
-  if(!cloudUserId){guestSnapshot=bridge.snapshot();guestFieldSnapshot=window.explorerFieldNotes.get();}
+  if(!cloudUserId){guestSnapshot=bridge.snapshot();guestFieldSnapshot=window.explorerFieldNotes.get();guestStampSnapshot=window.explorerPassportStamps.get();}
   cloudUserId=user.id;
  }
  window.explorerCloudActive=true;
@@ -422,7 +453,7 @@ window.saveExplorerProgress=()=>{
 };
 function leaveExplorerProgress(){
  ++cloudGeneration;cloudReady=false;cloudUserId=null;window.explorerCloudActive=false;
- if(guestSnapshot){bridge.apply(guestSnapshot);guestSnapshot=null}if(guestFieldSnapshot){window.explorerFieldNotes.apply(guestFieldSnapshot);guestFieldSnapshot=null}
+ if(guestSnapshot){bridge.apply(guestSnapshot);guestSnapshot=null}if(guestFieldSnapshot){window.explorerFieldNotes.apply(guestFieldSnapshot);guestFieldSnapshot=null}if(guestStampSnapshot!==null){window.explorerPassportStamps.apply(guestStampSnapshot);guestStampSnapshot=null}
 }
 
 let mode='signup', activeUser=null;
@@ -622,4 +653,37 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dialog.classList.contains('open'))close()});
 })();
 </script>
-</body></html>
+<script>
+(function(){
+ const button=document.getElementById('pressBellwetherStamp');
+ const art=document.getElementById('bellwetherStamp');
+ const seal=document.getElementById('stampSealText');
+ const status=document.getElementById('stampStatus');
+ function eligible(){
+  let compass=false;try{compass=localStorage.getItem('outpost-compass-v15')==='true'}catch(_){}
+  return compass||!!window.explorerFieldNotes?.has('bellwether-arrival-001');
+ }
+ function update(){
+  const stamped=window.explorerPassportStamps?.get()===true;
+  art.classList.toggle('claimed',stamped);
+  art.setAttribute('aria-label',stamped?'Bellwether passport stamp claimed':'Bellwether passport stamp not yet claimed');
+  seal.textContent=stamped?'CHARTED':'UNSTAMPED';
+  button.disabled=stamped||!eligible();
+  button.textContent=stamped?'Stamp Collected':eligible()?'Press Stamp':'Undiscovered';
+  status.textContent=stamped?'A little piece of Bellwether travels with you.':eligible()?'A stamp is waiting for you!':'Visit Bellwether to unlock this stamp.';
+ }
+ button.addEventListener('click',()=>{
+  if(button.disabled||!eligible())return;
+  window.explorerPassportStamps.claim();
+  art.animate([{transform:'rotate(-10deg) scale(1.35)',opacity:.4},{transform:'rotate(-9deg) scale(1)',opacity:1}],{duration:480,easing:'cubic-bezier(.2,.9,.3,1)'});
+  update();
+ });
+ window.addEventListener('outpost-stamp-changed',update);
+ const passport=document.getElementById('passportDialog');
+ new MutationObserver(update).observe(passport,{attributes:true,attributeFilter:['class']});
+ // Also refresh when a new location is charted.
+ const original=window.explorerCompass?.discover;
+ if(original)window.explorerCompass.discover=function(...args){const result=original.apply(this,args);update();return result};
+ update();
+})();
+</script></body></html>
