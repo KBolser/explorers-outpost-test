@@ -488,12 +488,28 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
 </script>
 
 <script>
-/* V12: Use the original working controls rather than replacing their logic. */
+/* V13: Open the existing dialogs directly from the toolkit. */
 (function(){
  const journal=document.getElementById('openJournal'),passport=document.getElementById('openPassport'),kit=document.getElementById('explorerKit'),fold=document.getElementById('kitFold');
- document.getElementById('kitJournal').addEventListener('click',()=>journal.click());
- document.getElementById('kitPassport').addEventListener('click',()=>passport.click());
- document.getElementById('kitPlaces').addEventListener('click',()=>{journal.click();document.querySelector('#journal .tab[data-section="worlds"]')?.click();});
+ function showJournal(section){
+   const panel=document.getElementById('journal');
+   panel.classList.add('open');
+   panel.setAttribute('aria-hidden','false');
+   if(section){
+     const tab=panel.querySelector('.tab[data-section="'+section+'"]');
+     if(tab) tab.click();
+   }
+   document.getElementById('closeJournal')?.focus();
+ }
+ function showPassport(){
+   const panel=document.getElementById('passportDialog');
+   panel.classList.add('open');
+   panel.setAttribute('aria-hidden','false');
+   document.getElementById('closePassport')?.focus();
+ }
+ document.getElementById('kitJournal').addEventListener('click',()=>showJournal());
+ document.getElementById('kitPassport').addEventListener('click',showPassport);
+ document.getElementById('kitPlaces').addEventListener('click',()=>showJournal('worlds'));
  fold.addEventListener('click',()=>{const collapsed=kit.classList.toggle('is-folded');fold.textContent=collapsed?'+':'−';fold.setAttribute('aria-expanded',String(!collapsed));fold.setAttribute('aria-label',collapsed?'Expand explorer's toolkit':'Collapse explorer's toolkit');});
 })();
 </script>
