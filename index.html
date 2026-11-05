@@ -74,6 +74,42 @@
  .tab{font-size:20px}
  h1{font-size:clamp(34px,9vw,43px)}
 }
+
+/* Version 8: botanical parchment arrival banner; no lantern, wax seal or emoji. */
+.bellwether-notice{
+  top:18px;width:min(700px,calc(100vw - 36px));padding:20px 39px 22px;
+  border:0;border-radius:17px 12px 19px 14px;
+  background:
+    radial-gradient(ellipse at 50% 43%,#fff0cf 0%,#f9e0ad 54%,#e9b977 83%,#bd844b 100%);
+  box-shadow:0 12px 28px #0008,0 3px 0 #714b2e,
+    inset 0 0 0 2px #a46b36,inset 0 0 0 7px #fbe6b8,
+    inset 0 0 0 9px #a97743,inset 0 0 25px #8e572d80;
+  color:#3c2818;overflow:visible;
+}
+.bellwether-notice::before{
+  content:'✦  A NEW PLACE DISCOVERED  ✦';display:block;
+  letter-spacing:.14em;font:700 11px 'Libre Baskerville',serif;
+  color:#654321;margin:0 28px 9px;padding-bottom:9px;
+  border-bottom:1px solid #a78052;
+}
+.bellwether-notice::after{
+  content:'❦';display:block;font:23px Georgia,serif;
+  color:#87643d;line-height:1;margin-top:7px;
+}
+.bellwether-notice strong{font:700 clamp(34px,4.3vw,52px) Caveat,cursive;line-height:1.04}
+.bellwether-notice > span:not(.arrival-botanical){display:block;margin:8px auto 0;max-width:610px;line-height:1.35;font-size:17px}
+.bellwether-notice .arrival-botanical{position:absolute;top:16px;color:#66502e;font:28px Georgia,serif;opacity:.85}
+.bellwether-notice .arrival-botanical.left{left:16px;transform:rotate(-35deg)}
+.bellwether-notice .arrival-botanical.right{right:16px;transform:scaleX(-1) rotate(-35deg)}
+@media(max-width:700px){
+ .bellwether-notice{top:76px;width:calc(100vw - 30px);padding:18px 20px 16px}
+ .bellwether-notice strong{font-size:clamp(29px,8vw,39px)}
+ .bellwether-notice > span:not(.arrival-botanical){font-size:14px}
+ .bellwether-notice::before{font-size:8px;margin:0 12px 8px;letter-spacing:.08em}
+ .bellwether-notice .arrival-botanical{font-size:18px;top:13px}
+ .bellwether-notice .arrival-botanical.left{left:9px}
+ .bellwether-notice .arrival-botanical.right{right:9px}
+}
 </style>
 <style>/* Desktop journal: give the right-hand page a comfortable outer margin. */
 @media (min-width:701px){.book .page.right{padding-right:36px;margin-bottom:48px;padding-bottom:32px;}}
@@ -106,7 +142,7 @@
 </style>
 </head><body>
 <div id="world" class="ep-webxp" data-webxp-url="https://endlesspaper.net/xp?id=83N1WaVYnKvRW" aria-label="Explore Of Little Things and Faraway Places"></div>
-<div id="bellwetherNotice" class="bellwether-notice" role="status" aria-live="polite" hidden><svg class="arrival-lantern" viewBox="0 0 60 90" aria-hidden="true"><path d="M20 19L30 6L40 19M16 23H44L48 30L42 68H18L12 30Z" fill="#56351f" stroke="#321c11" stroke-width="3"/><path d="M21 29H39L37 60H23Z" fill="#ffdc83" stroke="#f4b54d" stroke-width="2"/><path d="M30 30V61M15 30H45M17 69H43M30 69V80" fill="none" stroke="#4c2b18" stroke-width="4"/><path d="M25 56Q19 44 30 35Q40 47 34 56Z" fill="#fff6c2"/></svg><div class="arrival-seal" aria-hidden="true">✧</div><strong>Welcome to Bellwether!</strong><span>A little town with a lot of secrets. Keep your eyes open, traveler!</span></div>
+<div id="bellwetherNotice" class="bellwether-notice" role="status" aria-live="polite" hidden><span class="arrival-botanical left" aria-hidden="true">❧</span><span class="arrival-botanical right" aria-hidden="true">❧</span><strong>Welcome to Bellwether!</strong><span>A little town with a lot of secrets. Keep your eyes open, traveler!</span></div>
 <aside id="fieldRecordToast" class="field-record-toast" role="status" aria-live="polite" hidden><button id="dismissFieldRecord" type="button" aria-label="Dismiss field record">×</button><div class="record-label">FIELD RECORD · 001</div><strong class="record-title">First Impressions of Bellwether</strong><p class="record-text">At first glance, Bellwether seems like an ordinary place. But the longer I look, the more there is to see.</p><div class="record-saved">✓ Added to Field Notes</div></aside>
 <div id="webxpTestStatus" class="webxp-test-status" role="status" aria-live="polite">Connecting to Endless Paper…</div>
 <button id="openJournal" class="journal-button" type="button" aria-haspopup="dialog" aria-controls="journal">✧ Traveler's Journal</button>
