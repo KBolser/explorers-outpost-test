@@ -78,8 +78,21 @@
 <style>/* Desktop journal: give the right-hand page a comfortable outer margin. */
 @media (min-width:701px){.book .page.right{padding-right:36px;margin-bottom:48px;padding-bottom:32px;}}
 </style>
+<script src="https://endlesspaper.net/api/v1/webxp-integration.min.js"></script>
+<style>
+/* Bellwether location-awareness experiment: isolated from journal and passport. */
+#world iframe{display:block;width:100%;height:100%;border:0}
+.bellwether-notice{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:4;width:min(390px,calc(100vw - 32px));padding:13px 19px;border:1px solid #c8a675;border-radius:13px;background:#19372ff0;color:#f8e9cc;box-shadow:0 8px 24px #0008;text-align:center;pointer-events:none;font:18px Kalam,cursive}
+.bellwether-notice[hidden]{display:none!important}
+.bellwether-notice strong{display:block;font:700 25px Caveat,cursive}
+.bellwether-notice span{display:block;margin-top:2px}
+.webxp-test-status{position:fixed;left:12px;bottom:12px;z-index:4;padding:5px 10px;border:1px solid #b9a27a88;border-radius:8px;background:#142a23dc;color:#f2dfbf;font:13px Kalam,cursive;pointer-events:none}
+@media(max-width:700px){.bellwether-notice{top:76px;font-size:15px}.bellwether-notice strong{font-size:22px}.webxp-test-status{font-size:11px;max-width:calc(100vw - 24px)}}
+</style>
 </head><body>
-<iframe id="world" title="Explore Of Little Things and Faraway Places" src="https://endlesspaper.net/xp?id=83N1WaVYnKvRW" allow="fullscreen" allowfullscreen></iframe>
+<div id="world" class="ep-webxp" data-webxp-url="https://endlesspaper.net/xp?id=83N1WaVYnKvRW" aria-label="Explore Of Little Things and Faraway Places"></div>
+<div id="bellwetherNotice" class="bellwether-notice" role="status" aria-live="polite" hidden><strong>🏘️ Welcome to Bellwether!</strong><span>A little town with a lot of secrets. Keep your eyes open, traveler!</span></div>
+<div id="webxpTestStatus" class="webxp-test-status" role="status" aria-live="polite">Connecting to Endless Paper…</div>
 <button id="openJournal" class="journal-button" type="button" aria-haspopup="dialog" aria-controls="journal">✧ Traveler's Journal</button>
 
 <button id="openPassport" class="passport-button" type="button" aria-haspopup="dialog" aria-controls="passportDialog">✧ Explorer's Passport</button>
@@ -309,5 +322,35 @@ form.addEventListener('submit',async e=>{
 $('passportSignOut').addEventListener('click',async()=>{const {error}=await supabase.auth.signOut();if(error)message(error.message,true);else{await renderUser(null);setMode('signin');message('Signed out. You can still explore as a guest.')}});
 supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){mode='recovery';$('passportGuest').hidden=false;$('passportMember').hidden=true;$('nameGroup').hidden=true;$('explorerEmail').parentElement.querySelector('label[for=explorerEmail]').hidden=true;$('explorerEmail').hidden=true;$('explorerPassword').value='';$('explorerPassword').autocomplete='new-password';$('passportSubmit').textContent='Set new password';$('passportMode').hidden=true;$('passportReset').hidden=true;openPassport(true);message('Enter your new password below.')}else if(event==='SIGNED_OUT'){renderUser(null)}else if(session?.user&&mode!=='recovery'){setTimeout(()=>renderUser(session.user),0)}});
 (async()=>{const {data,error}=await supabase.auth.getUser();if(data?.user)await renderUser(data.user);else if(error&&error.name!=='AuthSessionMissingError')message('Account service: '+error.message,true)})();
+</script>
+<script>
+/* The official WebXP integration inserts its own iframe inside #world. */
+(function(){
+ const status=document.getElementById('webxpTestStatus');
+ const notice=document.getElementById('bellwetherNotice');
+ const BOOKMARK='The Town of Bellwether';
+ let ready=false;
+ function setStatus(value){status.textContent=value;}
+ if(!window.EndlessPaper){setStatus('Endless Paper integration unavailable');return;}
+ EndlessPaper.onLoad(function(iframe){
+   if(iframe.parentElement?.id!=='world')return;
+   setStatus('WebXP connected · loading world…');
+ });
+ EndlessPaper.onReady(function(iframe){
+   if(iframe.parentElement?.id!=='world')return;
+   ready=true;
+   setStatus('WebXP ready · looking for Bellwether');
+ });
+ EndlessPaper.onBookmarkNearby({name:BOOKMARK},function(bookmarks){
+   if(!ready)return;
+   const matches=Array.isArray(bookmarks)?bookmarks.filter(b=>b.name===BOOKMARK):[];
+   /* An intersecting, visible bookmark counts as arriving. A nearby but off-screen
+      bookmark does not. The 0.05 threshold is deliberately permissive for testing. */
+   const arrived=matches.some(b=>b.intersectionInfo && b.intersectionInfo.visibleBookmarkRatio>=0.05);
+   notice.hidden=!arrived;
+   if(arrived){setStatus('Bellwether detected ✓');}
+   else{setStatus('WebXP ready · exploring');}
+ });
+})();
 </script>
 </body></html>
