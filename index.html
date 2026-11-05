@@ -325,7 +325,7 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
 </script>
 <script>
 /* Bellwether arrival test: compare the current zoom to the saved town bookmark.
-   The status line reports the actual zoomFactor so the threshold can be tuned. */
+   The status line reports the actual zoomFactor for verification. */
 (function(){
  const status=document.getElementById('webxpTestStatus');
  const notice=document.getElementById('bellwetherNotice');
@@ -348,10 +348,10 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
        const intersecting=visibility!=null && visibility>0;
        const valid=!!match && Number.isFinite(zoom) && intersecting;
        // A close zoom alone is not enough: the town must remain on screen.
-       if(!inTown && valid && zoom>=ARRIVE_ZOOM) {
+       if(!inTown && valid && zoom<=ARRIVE_ZOOM) {
          inTown=true;
          if(!greetingShown){notice.hidden=false;greetingShown=true;}
-       } else if(inTown && (!valid || zoom<LEAVE_ZOOM)) {
+       } else if(inTown && (!valid || zoom>LEAVE_ZOOM)) {
          inTown=false;
          greetingShown=false;
          notice.hidden=true;
