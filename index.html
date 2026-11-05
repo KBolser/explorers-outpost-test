@@ -178,11 +178,15 @@ button.compass-destination{cursor:pointer}
 button.compass-destination:hover{background:#fff9eb}
 .compass-destination strong{display:block;font-size:19px}
 .compass-destination small{display:block;font-size:13px}
-.compass-destination .symbol{font-size:24px}
+.compass-destination .symbol{width:43px;height:43px;display:flex;flex-shrink:0;align-items:center;justify-content:center}.compass-destination .symbol svg{width:38px;height:38px}
 .compass-close{position:absolute;top:9px;right:12px;border:0;background:transparent;font:30px Georgia,serif;color:#5b3c29;cursor:pointer}
 .compass-message{min-height:22px;margin-top:10px;font-size:14px}
 .compass-charted{position:fixed;z-index:35;top:22px;left:50%;transform:translateX(-50%);padding:14px 24px;border:2px solid #a37d50;border-radius:12px;background:#f4e0b8;color:#473321;box-shadow:0 8px 30px #0007;font:700 23px Caveat,cursive;pointer-events:none}
 [hidden].compass-charted{display:none}
+.compass-card{border:5px solid #65462e;box-shadow:0 16px 48px #000a,inset 0 0 0 2px #b39061,inset 0 0 0 9px #ead4a9}
+.compass-destination{border-radius:4px 15px 6px 13px;background:#f8edcf;border-left:4px solid #94734b;transition:background .2s,transform .2s}
+button.compass-destination:hover{transform:translateX(3px);background:#fff8e7}
+.compass-card h2{letter-spacing:.3px}
 </style>
 </head><body>
 <div id="world" class="ep-webxp" data-webxp-url="https://endlesspaper.net/xp?id=83N1WaVYnKvRW" data-webxp-show-navbar="false" aria-label="Explore Of Little Things and Faraway Places"></div>
@@ -203,7 +207,7 @@ button.compass-destination:hover{background:#fff9eb}
   <div id="compassMessage" class="compass-message" role="status"></div>
  </div>
 </div>
-<div id="compassCharted" class="compass-charted" role="status" hidden>A new path has been charted! 🍃</div>
+<div id="compassCharted" class="compass-charted" role="status" hidden>A new path has been charted!</div>
 <div id="bellwetherNotice" class="bellwether-notice" role="status" aria-live="polite" hidden><span class="arrival-botanical left" aria-hidden="true"></span><span class="arrival-botanical right" aria-hidden="true"></span><strong>Welcome to Bellwether!</strong><span>A little town with a lot of secrets. Keep your eyes open, traveler!</span></div>
 <aside id="fieldRecordToast" class="field-record-toast" role="status" aria-live="polite" hidden><button id="dismissFieldRecord" type="button" aria-label="Dismiss field record">×</button><div class="record-label">FIELD RECORD · 001</div><strong class="record-title">First Impressions of Bellwether</strong><p class="record-text">At first glance, Bellwether seems like an ordinary place. But the longer I look, the more there is to see.</p><div class="record-saved">✓ Added to Field Notes</div></aside>
 <div id="webxpTestStatus" class="webxp-test-status" role="status" aria-live="polite">Connecting to Endless Paper…</div>
@@ -524,6 +528,11 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
  const journal=document.getElementById('openJournal'),passport=document.getElementById('openPassport'),kit=document.getElementById('explorerKit'),fold=document.getElementById('kitFold');
  function showJournal(section){
    const panel=document.getElementById('journal');
+   const wasOpen=panel.classList.contains('open');
+   window.explorerCompass?.close();
+   document.getElementById('passportDialog')?.classList.remove('open');
+   document.getElementById('passportDialog')?.setAttribute('aria-hidden','true');
+   if(wasOpen){panel.classList.remove('open');panel.setAttribute('aria-hidden','true');return;}
    panel.classList.add('open');
    panel.setAttribute('aria-hidden','false');
    if(section){
@@ -534,6 +543,11 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
  }
  function showPassport(){
    const panel=document.getElementById('passportDialog');
+   const wasOpen=panel.classList.contains('open');
+   window.explorerCompass?.close();
+   document.getElementById('journal')?.classList.remove('open');
+   document.getElementById('journal')?.setAttribute('aria-hidden','true');
+   if(wasOpen){panel.classList.remove('open');panel.setAttribute('aria-hidden','true');return;}
    panel.classList.add('open');
    panel.setAttribute('aria-hidden','false');
    document.getElementById('closePassport')?.focus();
@@ -564,11 +578,11 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
   const bell=document.createElement(known?'button':'div');
   bell.className='compass-destination';
   if(known){bell.type='button';bell.addEventListener('click',travel);}
-  bell.innerHTML=known?'<span class="symbol">🧭</span><span><strong>Bellwether</strong><small>Discovered · Return to location</small></span>':'<span class="symbol">🔒</span><span><strong>Uncharted Destination</strong><small>A path has yet to be found</small></span>';
+  bell.innerHTML=known?'<span class="symbol"><svg viewBox="0 0 68 68" aria-hidden="true"><g fill="none" stroke="#756342" stroke-width="2" stroke-linecap="round"><path d="M12 55Q31 43 43 24Q51 10 58 15Q63 19 57 24Q53 27 50 22"/><path d="M25 45Q11 42 15 30Q28 33 25 45Z" fill="#a0a887"/><path d="M36 33Q29 19 40 14Q47 24 36 33Z" fill="#a0a887"/><path d="M43 24Q54 30 60 20Q50 16 43 24Z" fill="#a0a887"/></g></svg></span><span><strong>Bellwether</strong><small>Discovered · Return to location</small></span>':'<span class="symbol"><svg viewBox="0 0 68 68" aria-hidden="true"><g fill="none" stroke="#7d684b" stroke-width="3" stroke-linejoin="round"><path d="M23 30V23a11 11 0 0 1 22 0v7"/><rect x="18" y="30" width="32" height="26" rx="4" fill="#e3cc9f"/><circle cx="34" cy="40" r="3" fill="#7d684b"/><path d="M34 43v6"/></g></svg></span><span><strong>Uncharted Destination</strong><small>A path has yet to be found</small></span>';
   entries.appendChild(bell);
   const future=document.createElement('div');
   future.className='compass-destination';
-  future.innerHTML='<span class="symbol">🔒</span><span><strong>Uncharted Destination</strong><small>More paths await discovery</small></span>';
+  future.innerHTML='<span class="symbol"><svg viewBox="0 0 68 68" aria-hidden="true"><g fill="none" stroke="#7d684b" stroke-width="3" stroke-linejoin="round"><path d="M23 30V23a11 11 0 0 1 22 0v7"/><rect x="18" y="30" width="32" height="26" rx="4" fill="#e3cc9f"/><circle cx="34" cy="40" r="3" fill="#7d684b"/><path d="M34 43v6"/></g></svg></span><span><strong>Uncharted Destination</strong><small>More paths await discovery</small></span>';
   entries.appendChild(future);
  }
  function travel(){
@@ -583,7 +597,16 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
  }
  function close(){dialog.classList.remove('open');dialog.setAttribute('aria-hidden','true');}
  window.explorerCompass={
-  open(){render();dialog.classList.add('open');dialog.setAttribute('aria-hidden','false');document.getElementById('closeCompass').focus();},
+  open(){
+   const wasOpen=dialog.classList.contains('open');
+   document.getElementById('journal')?.classList.remove('open');
+   document.getElementById('journal')?.setAttribute('aria-hidden','true');
+   document.getElementById('passportDialog')?.classList.remove('open');
+   document.getElementById('passportDialog')?.setAttribute('aria-hidden','true');
+   if(wasOpen){close();return;}
+   render();dialog.classList.add('open');dialog.setAttribute('aria-hidden','false');document.getElementById('closeCompass').focus();
+  },
+  close,
   discover(place){
    if(place!=='bellwether'||discovered)return;
    discovered=true;
