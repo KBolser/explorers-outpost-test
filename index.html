@@ -324,14 +324,14 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
 (async()=>{const {data,error}=await supabase.auth.getUser();if(data?.user)await renderUser(data.user);else if(error&&error.name!=='AuthSessionMissingError')message('Account service: '+error.message,true)})();
 </script>
 <script>
-/* Bellwether arrival test: compare the current zoom to the saved town bookmark.
+/* Bellwether arrival test v5: compare the current zoom to the saved town bookmark.
    The status line reports the actual zoomFactor for verification. */
 (function(){
  const status=document.getElementById('webxpTestStatus');
  const notice=document.getElementById('bellwetherNotice');
  const BOOKMARK='The Town of Bellwether';
- const ARRIVE_ZOOM=0.85; // Start greeting near the saved full-town view.
- const LEAVE_ZOOM=0.65;  // Hysteresis prevents flickering at the boundary.
+ const ARRIVE_ZOOM=4.0; // Greet near the saved full-town view (observed zoom 3.33).
+ const LEAVE_ZOOM=6.0;  // Reset only after zooming substantially away from town.
  let ready=false, callbacks=0, inTown=false, greetingShown=false;
  function show(t){status.textContent=t;}
  if(!window.EndlessPaper){show('Integration library unavailable');return;}
