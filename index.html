@@ -82,16 +82,27 @@
 <style>
 /* Bellwether location-awareness experiment: isolated from journal and passport. */
 #world iframe{display:block;width:100%;height:100%;border:0}
-.bellwether-notice{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:4;width:min(390px,calc(100vw - 32px));padding:13px 19px;border:1px solid #c8a675;border-radius:13px;background:#19372ff0;color:#f8e9cc;box-shadow:0 8px 24px #0008;text-align:center;pointer-events:none;font:18px Kalam,cursive}
+/* Parchment welcome: visually distinct from the smaller field record. */
+.bellwether-notice{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:4;width:min(420px,calc(100vw - 32px));padding:17px 25px 18px;border:1px solid #9d7c50;border-radius:5px 9px 6px 8px;background:linear-gradient(135deg,#f2e3c5,#dec59b 95%);color:#4b3525;box-shadow:0 9px 27px #0009, inset 0 0 0 4px #fff4d626;text-align:center;pointer-events:none;font:17px Kalam,cursive}
 .bellwether-notice[hidden]{display:none!important}
-.bellwether-notice strong{display:block;font:700 25px Caveat,cursive}
-.bellwether-notice span{display:block;margin-top:2px}
+.bellwether-notice::before{content:'✦ A NEW PLACE DISCOVERED ✦';display:block;letter-spacing:.09em;font:700 11px 'Libre Baskerville',serif;color:#78603e;margin-bottom:7px}
+.bellwether-notice strong{display:block;font:700 30px Caveat,cursive}
+.bellwether-notice span{display:block;margin-top:5px}
+.field-record-toast{position:fixed;right:20px;bottom:46px;z-index:5;width:min(345px,calc(100vw - 30px));padding:19px 22px 17px;background:linear-gradient(140deg,#f1e4c9,#ddc69f);border:1px solid #ad9270;border-radius:3px 8px 5px 6px;color:#4b3726;box-shadow:0 8px 28px #0009;font:16px Kalam,cursive;animation:note-in .3s ease-out}
+.field-record-toast[hidden]{display:none!important}
+.field-record-toast .record-label{font:700 10px 'Libre Baskerville',serif;letter-spacing:.12em;color:#7b654a}
+.field-record-toast .record-title{display:block;font:700 27px Caveat,cursive;margin:6px 24px 4px 0}
+.field-record-toast .record-text{margin:0;line-height:1.35}
+.field-record-toast .record-saved{margin-top:12px;border-top:1px solid #bba789;padding-top:8px;text-align:right;font-size:13px;color:#556347}
+.field-record-toast button{position:absolute;right:9px;top:7px;border:0;background:transparent;color:#6c543b;font:26px Caveat,cursive;cursor:pointer}
+@keyframes note-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 .webxp-test-status{position:fixed;left:12px;bottom:12px;z-index:4;padding:5px 10px;border:1px solid #b9a27a88;border-radius:8px;background:#142a23dc;color:#f2dfbf;font:13px Kalam,cursive;pointer-events:none}
-@media(max-width:700px){.bellwether-notice{top:76px;font-size:15px}.bellwether-notice strong{font-size:22px}.webxp-test-status{font-size:11px;max-width:calc(100vw - 24px)}}
+@media(max-width:700px){.bellwether-notice{top:76px;font-size:15px}.bellwether-notice strong{font-size:22px}.webxp-test-status{font-size:11px;max-width:calc(100vw - 24px)}.field-record-toast{right:12px;bottom:52px;padding:15px 17px}.field-record-toast .record-title{font-size:24px}}
 </style>
 </head><body>
 <div id="world" class="ep-webxp" data-webxp-url="https://endlesspaper.net/xp?id=83N1WaVYnKvRW" aria-label="Explore Of Little Things and Faraway Places"></div>
 <div id="bellwetherNotice" class="bellwether-notice" role="status" aria-live="polite" hidden><strong>🏘️ Welcome to Bellwether!</strong><span>A little town with a lot of secrets. Keep your eyes open, traveler!</span></div>
+<aside id="fieldRecordToast" class="field-record-toast" role="status" aria-live="polite" hidden><button id="dismissFieldRecord" type="button" aria-label="Dismiss field record">×</button><div class="record-label">FIELD RECORD · 001</div><strong class="record-title">First Impressions of Bellwether</strong><p class="record-text">At first glance, Bellwether seems like an ordinary place. But the longer I look, the more there is to see.</p><div class="record-saved">✓ Added to Field Notes</div></aside>
 <div id="webxpTestStatus" class="webxp-test-status" role="status" aria-live="polite">Connecting to Endless Paper…</div>
 <button id="openJournal" class="journal-button" type="button" aria-haspopup="dialog" aria-controls="journal">✧ Traveler's Journal</button>
 
@@ -217,8 +228,27 @@ const fieldNotes=[
  {title:'An Odd Way to Travel',location:'BELLWETHER',paragraphs:["I've heard of people getting lost in a good television program, but I never expected to take the expression quite so literally.","I'm beginning to suspect that the residents of Bellwether have no idea just how interesting their televisions really are."]},
  {title:'A Thought Before Leaving',location:'BELLWETHER',paragraphs:["It's strange how easily we overlook the things right in front of us. I wonder how many extraordinary places I've walked past without ever noticing.","Perhaps I'll take the long way home today."]}
 ];
+const COLLECTIBLE_NOTE_ID='bellwether-arrival-001';
+const collectibleNote={title:'First Impressions of Bellwether',location:'BELLWETHER',paragraphs:['At first glance, Bellwether seems like an ordinary place. But the longer I look, the more there is to see.']};
+const FIELD_GUEST_KEY='explorers-outpost-field-records-v1';
+let collectedFieldNotes=[];
+try{collectedFieldNotes=JSON.parse(localStorage.getItem(FIELD_GUEST_KEY)||'[]');if(!Array.isArray(collectedFieldNotes))collectedFieldNotes=[];}catch{collectedFieldNotes=[];}
+function saveGuestFieldNotes(){try{localStorage.setItem(FIELD_GUEST_KEY,JSON.stringify(collectedFieldNotes));}catch{}}
+window.explorerFieldNotes={
+ get(){return [...collectedFieldNotes]},
+ apply(ids){collectedFieldNotes=Array.isArray(ids)?ids.filter(x=>x===COLLECTIBLE_NOTE_ID):[];saveGuestFieldNotes();if(document.querySelector('.tab[aria-selected="true"]')?.dataset.section==='notes')showSection('field');},
+ collect(id){if(id!==COLLECTIBLE_NOTE_ID||collectedFieldNotes.includes(id))return false;collectedFieldNotes.push(id);saveGuestFieldNotes();if(window.explorerCloudActive&&window.saveExplorerProgress)window.saveExplorerProgress();if(document.querySelector('.tab[aria-selected="true"]')?.dataset.section==='notes')showSection('field');return true;},
+ has(id){return collectedFieldNotes.includes(id)}
+};
 function addFieldNotes(){
  const intro=document.createElement('p');intro.className='field-intro';intro.textContent='Not every peculiar thing is a mystery to solve. Some are simply worth remembering.';sectionContent.append(intro);
+ if(collectedFieldNotes.includes(COLLECTIBLE_NOTE_ID)){
+  const entry=document.createElement('article');entry.className='entry field-entry';
+  const label=document.createElement('div');label.className='field-label';label.textContent='COLLECTED FIELD RECORD · BELLWETHER';
+  const title=document.createElement('strong');title.textContent=collectibleNote.title;
+  const paragraph=document.createElement('p');paragraph.textContent=collectibleNote.paragraphs[0];
+  entry.append(label,title,paragraph);sectionContent.append(entry);
+ }
  fieldNotes.forEach((note,i)=>{
   const entry=document.createElement('article');entry.className='entry field-entry';
   const label=document.createElement('div');label.className='field-label';label.textContent=`ENTRY NO. ${String(i+1).padStart(3,'0')} · ${note.location}`;
@@ -233,8 +263,8 @@ function showSection(name){const section=content[name];sectionContent.replaceChi
 function setOpen(isOpen){dialog.classList.toggle('open',isOpen);dialog.setAttribute('aria-hidden',String(!isOpen));if(isOpen)closeBtn.focus();else openBtn.focus()}
 openBtn.addEventListener('click',()=>setOpen(true));closeBtn.addEventListener('click',()=>setOpen(false));document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showSection(b.dataset.section)));dialog.addEventListener('click',e=>{if(e.target===dialog)setOpen(false)});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dialog.classList.contains('open'))setOpen(false);if(e.key==='Tab'&&dialog.classList.contains('open')){const focusables=[closeBtn,...dialog.querySelectorAll('.tab')];const first=focusables[0],last=focusables.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});showSection('discoveries');
 window.explorerProgressBridge={
- snapshot(){return {ducks:Object.fromEntries(duckClues.map(d=>[d.id,!!duckProgress[d.id]])),colors:Object.fromEntries(colorClues.map(c=>[c.id,colorProgress[c.id].map(Boolean)]))}},
- apply(progress){const d=progress?.ducks||{},c=progress?.colors||{};for(const duck of duckClues)duckProgress[duck.id]=d[duck.id]===true;for(const clue of colorClues)colorProgress[clue.id]=Array.from({length:clue.count},(_,i)=>c[clue.id]?.[i]===true);if(document.querySelector('.tab[data-section="discoveries"]')?.getAttribute('aria-selected')==='true')showSection('discoveries')}
+ snapshot(){return {ducks:Object.fromEntries(duckClues.map(d=>[d.id,!!duckProgress[d.id]])),colors:Object.fromEntries(colorClues.map(c=>[c.id,colorProgress[c.id].map(Boolean)])),fieldRecords:window.explorerFieldNotes.get()}},
+ apply(progress){const d=progress?.ducks||{},c=progress?.colors||{};window.explorerFieldNotes.apply(progress?.fieldRecords||[]);for(const duck of duckClues)duckProgress[duck.id]=d[duck.id]===true;for(const clue of colorClues)colorProgress[clue.id]=Array.from({length:clue.count},(_,i)=>c[clue.id]?.[i]===true);if(document.querySelector('.tab[data-section="discoveries"]')?.getAttribute('aria-selected')==='true')showSection('discoveries')}
 };
 </script>
 
@@ -245,7 +275,7 @@ const $=id=>document.getElementById(id);
 const popup=$('passportDialog'), status=$('passportStatus'), form=$('passportForm');
 // Guest progress stays on this browser. Signed-in progress belongs to the account.
 let cloudUserId=null, cloudReady=false, cloudGeneration=0, writeChain=Promise.resolve();
-let guestSnapshot=null;
+let guestSnapshot=null,guestFieldSnapshot=null;
 const bridge=window.explorerProgressBridge;
 window.explorerCloudActive=false;
 function progressMessage(text,isError=false){message(text,isError)}
@@ -254,7 +284,7 @@ async function loadExplorerProgress(user){
  cloudReady=false;
  const switching=cloudUserId!==user.id;
  if(switching){
-  if(!cloudUserId)guestSnapshot=bridge.snapshot();
+  if(!cloudUserId){guestSnapshot=bridge.snapshot();guestFieldSnapshot=window.explorerFieldNotes.get();}
   cloudUserId=user.id;
  }
  window.explorerCloudActive=true;
@@ -285,7 +315,7 @@ window.saveExplorerProgress=()=>{
 };
 function leaveExplorerProgress(){
  ++cloudGeneration;cloudReady=false;cloudUserId=null;window.explorerCloudActive=false;
- if(guestSnapshot){bridge.apply(guestSnapshot);guestSnapshot=null}
+ if(guestSnapshot){bridge.apply(guestSnapshot);guestSnapshot=null}if(guestFieldSnapshot){window.explorerFieldNotes.apply(guestFieldSnapshot);guestFieldSnapshot=null}
 }
 
 let mode='signup', activeUser=null;
@@ -332,7 +362,14 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
  const BOOKMARK='The Town of Bellwether';
  const ARRIVE_ZOOM=4.0; // Greet near the saved full-town view (observed zoom 3.33).
  const LEAVE_ZOOM=6.0;  // Reset only after zooming substantially away from town.
- let ready=false, callbacks=0, inTown=false, greetingShown=false;
+ let ready=false, callbacks=0, inTown=false, greetingShown=false, fieldTimer=null, welcomeTimer=null;
+ const recordToast=document.getElementById('fieldRecordToast');
+ document.getElementById('dismissFieldRecord').addEventListener('click',()=>{recordToast.hidden=true;});
+ function offerFieldRecord(){
+   if(!inTown||window.explorerFieldNotes.has('bellwether-arrival-001'))return;
+   // The note is stored as soon as it is presented; it is not a second checkbox.
+   if(window.explorerFieldNotes.collect('bellwether-arrival-001'))recordToast.hidden=false;
+ }
  function show(t){status.textContent=t;}
  if(!window.EndlessPaper){show('Integration library unavailable');return;}
  EndlessPaper.onLoad(function(iframe){
@@ -350,11 +387,14 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
        // A close zoom alone is not enough: the town must remain on screen.
        if(!inTown && valid && zoom<=ARRIVE_ZOOM) {
          inTown=true;
-         if(!greetingShown){notice.hidden=false;greetingShown=true;}
+         if(!greetingShown){notice.hidden=false;greetingShown=true;clearTimeout(welcomeTimer);welcomeTimer=setTimeout(()=>{notice.hidden=true;},4400);}
+         clearTimeout(fieldTimer);
+         fieldTimer=setTimeout(offerFieldRecord,5500);
        } else if(inTown && (!valid || zoom>LEAVE_ZOOM)) {
          inTown=false;
          greetingShown=false;
          notice.hidden=true;
+         clearTimeout(fieldTimer);
        }
        if(match){
          show((inTown?'✓ In Bellwether':'Approaching Bellwether')+
