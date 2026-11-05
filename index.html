@@ -324,32 +324,37 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
 (async()=>{const {data,error}=await supabase.auth.getUser();if(data?.user)await renderUser(data.user);else if(error&&error.name!=='AuthSessionMissingError')message('Account service: '+error.message,true)})();
 </script>
 <script>
-/* The official WebXP integration inserts its own iframe inside #world. */
+/* Diagnostic test: bind the listener to the actual WebXP iframe when loaded. */
 (function(){
  const status=document.getElementById('webxpTestStatus');
  const notice=document.getElementById('bellwetherNotice');
  const BOOKMARK='The Town of Bellwether';
- let ready=false;
- function setStatus(value){status.textContent=value;}
- if(!window.EndlessPaper){setStatus('Endless Paper integration unavailable');return;}
+ let ready=false, callbacks=0, lastNames=[];
+ function show(t){status.textContent=t;}
+ if(!window.EndlessPaper){show('Integration library unavailable');return;}
  EndlessPaper.onLoad(function(iframe){
    if(iframe.parentElement?.id!=='world')return;
-   setStatus('WebXP connected · loading world…');
+   show('WebXP connected · loading…');
+   try {
+     // No name filter for this diagnostic: see which bookmarks are actually reported.
+     EndlessPaper.onBookmarkNearby(function(bookmarks){
+       callbacks++;
+       const found=Array.isArray(bookmarks)?bookmarks:[];
+       lastNames=found.map(b=>b.name).filter(Boolean);
+       const match=found.find(b=>b.name===BOOKMARK);
+       const ratio=match?.intersectionInfo?.visibleBookmarkRatio;
+       const arrived=!!match && ratio!=null && ratio>=0.05;
+       notice.hidden=!arrived;
+       if(arrived)show('✓ Bellwether detected · visibility '+Math.round(ratio*100)+'%');
+       else if(match)show('Bellwether nearby · visibility '+(ratio==null?'not intersecting':Math.round(ratio*100)+'%'));
+       else show('WebXP '+(ready?'ready':'loading')+' · bookmark events '+callbacks+' · nearby: '+(lastNames.slice(0,3).join(', ')||'none'));
+     },iframe);
+   }catch(err){show('Bookmark listener error: '+String(err.message||err));}
  });
  EndlessPaper.onReady(function(iframe){
    if(iframe.parentElement?.id!=='world')return;
    ready=true;
-   setStatus('WebXP ready · looking for Bellwether');
- });
- EndlessPaper.onBookmarkNearby({name:BOOKMARK},function(bookmarks){
-   if(!ready)return;
-   const matches=Array.isArray(bookmarks)?bookmarks.filter(b=>b.name===BOOKMARK):[];
-   /* An intersecting, visible bookmark counts as arriving. A nearby but off-screen
-      bookmark does not. The 0.05 threshold is deliberately permissive for testing. */
-   const arrived=matches.some(b=>b.intersectionInfo && b.intersectionInfo.visibleBookmarkRatio>=0.05);
-   notice.hidden=!arrived;
-   if(arrived){setStatus('Bellwether detected ✓');}
-   else{setStatus('WebXP ready · exploring');}
+   if(!callbacks)show('WebXP ready · waiting for bookmark events');
  });
 })();
 </script>
