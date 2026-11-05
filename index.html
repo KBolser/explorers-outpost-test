@@ -93,7 +93,7 @@
   border-bottom:1px solid #a78052;
 }
 .bellwether-notice::after{
-  content:'❦';display:block;font:23px Georgia,serif;
+  content:'';display:block;font:23px Georgia,serif;
   color:#87643d;line-height:1;margin-top:7px;
 }
 .bellwether-notice strong{font:700 clamp(34px,4.3vw,52px) Caveat,cursive;line-height:1.04}
@@ -123,14 +123,14 @@
 .bellwether-notice{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:4;width:min(565px,calc(100vw - 32px));padding:26px 42px 24px;border:2px solid #9a6b39;border-radius:14px 9px 17px 11px;background:radial-gradient(ellipse at 48% 45%,#fff0cd 0%,#f4ddb0 49%,#d4a86c 100%);color:#49301c;box-shadow:0 14px 34px #0009,0 3px 0 #57381e,inset 0 0 0 5px #f7e6c27a,inset 0 0 0 7px #a47c4a70,inset 0 0 38px #8a542850;text-align:center;pointer-events:none;font:17px Kalam,cursive;isolation:isolate}
 .bellwether-notice[hidden]{display:none!important}
 .bellwether-notice::before{content:'✦  A NEW PLACE DISCOVERED  ✦';display:block;letter-spacing:.16em;font:700 10px 'Libre Baskerville',serif;color:#79532f;margin:0 24px 12px;padding-bottom:10px;border-bottom:1px solid #aa8657}
-.bellwether-notice::after{content:'❧';display:block;font:27px Georgia,serif;color:#8a6c3e;line-height:1;margin-top:8px}
+.bellwether-notice::after{content:'';display:block;font:27px Georgia,serif;color:#8a6c3e;line-height:1;margin-top:8px}
 .bellwether-notice strong{display:block;font:700 clamp(29px,4vw,43px) Caveat,cursive;line-height:1.05;text-shadow:0 1px #fff1d2}
 .bellwether-notice span{display:block;margin:10px auto 0;max-width:430px;line-height:1.35}
 .bellwether-notice .arrival-lantern{position:absolute;left:-14px;top:24px;width:54px;height:78px;filter:drop-shadow(2px 5px 3px #0007)}
 .bellwether-notice .arrival-seal{position:absolute;right:-17px;top:50%;transform:translateY(-50%) rotate(11deg);width:61px;height:61px;border:3px double #f0b78a;border-radius:50%;background:radial-gradient(circle at 34% 30%,#bc5739,#812c24 74%);color:#f5cb91;display:grid;place-items:center;font:38px Georgia,serif;box-shadow:0 3px 9px #0007,inset 0 0 0 3px #852b23}
 .field-record-toast{position:fixed;right:20px;bottom:46px;z-index:5;width:min(370px,calc(100vw - 30px));padding:25px 27px 19px;background:radial-gradient(ellipse at 40% 30%,#fff0d1,#efd8ae 65%,#cfa477 100%);border:2px solid #a77a49;border-radius:7px 13px 5px 12px;color:#4b3726;box-shadow:0 10px 30px #0009,3px 4px 0 #8b613b,inset 0 0 0 5px #f9e8c681,inset 0 0 28px #a16b3b52;font:16px Kalam,cursive;animation:note-in .3s ease-out}
 .field-record-toast[hidden]{display:none!important}
-.field-record-toast::before{content:'❧';position:absolute;left:12px;top:8px;color:#97784f;font:23px Georgia,serif}
+.field-record-toast::before{content:'';position:absolute;left:12px;top:8px;color:#97784f;font:23px Georgia,serif}
 .field-record-toast .record-label{font:700 10px 'Libre Baskerville',serif;letter-spacing:.12em;color:#765337;text-align:center;border-bottom:1px solid #bba07a;padding-bottom:11px;margin:0 20px 10px}
 .field-record-toast .record-title{display:block;font:700 29px Caveat,cursive;margin:6px 24px 9px 0;line-height:1.1}
 .field-record-toast .record-text{margin:0;line-height:1.4}
@@ -140,9 +140,21 @@
 .webxp-test-status{position:fixed;left:12px;bottom:12px;z-index:4;padding:5px 10px;border:1px solid #b9a27a88;border-radius:8px;background:#142a23dc;color:#f2dfbf;font:13px Kalam,cursive;pointer-events:none}
 @media(max-width:700px){.bellwether-notice{top:76px;width:calc(100vw - 42px);padding:21px 27px 16px;font-size:14px}.bellwether-notice strong{font-size:30px}.bellwether-notice::before{font-size:8px;margin:0 9px 10px}.bellwether-notice .arrival-lantern{width:33px;height:50px;left:-10px;top:18px}.bellwether-notice .arrival-seal{width:41px;height:41px;font-size:25px;right:-12px}.webxp-test-status{font-size:11px;max-width:calc(100vw - 24px)}.field-record-toast{right:12px;bottom:52px;padding:20px 19px 16px}.field-record-toast .record-title{font-size:25px}}
 </style>
+
+<style id="outpost-signature-sprig">
+/* Shared, scalable leafy sprig. Decoration only: no application logic changed. */
+:root{--outpost-sprig:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20260%20130%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23827052%22%20stroke-width%3D%222.8%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M45%20109%20C87%2094%20122%2071%20156%2043%20C172%2029%20186%2019%20202%2018%20C220%2016%20227%2031%20217%2040%20C209%2048%20197%2044%20198%2035%20C199%2030%20205%2029%20209%2032%22%2F%3E%3Cpath%20d%3D%22M91%2086%20C75%2069%2066%2058%2069%2042%20C88%2044%20100%2061%2091%2086Z%22%20fill%3D%22%23a6ad89%22%20fill-opacity%3D%22.58%22%2F%3E%3Cpath%20d%3D%22M119%2066%20C111%2044%20117%2027%20133%2022%20C141%2040%20137%2054%20119%2066Z%22%20fill%3D%22%23a6ad89%22%20fill-opacity%3D%22.58%22%2F%3E%3Cpath%20d%3D%22M148%2049%20C160%2050%20176%2042%20182%2028%20C164%2023%20150%2034%20148%2049Z%22%20fill%3D%22%23a6ad89%22%20fill-opacity%3D%22.58%22%2F%3E%3Cpath%20d%3D%22M69%2099%20C56%20103%2042%2098%2038%2087%20C53%2080%2066%2086%2069%2099Z%22%20fill%3D%22%23a6ad89%22%20fill-opacity%3D%22.58%22%2F%3E%3Cpath%20d%3D%22M103%2078%20C120%2085%20134%2080%20140%2069%20C125%2061%20111%2065%20103%2078Z%22%20fill%3D%22%23a6ad89%22%20fill-opacity%3D%22.58%22%2F%3E%3Cpath%20d%3D%22M73%2047%20Q83%2065%2091%2086%20M126%2028%20Q127%2048%20119%2066%20M155%2045%20Q168%2037%20178%2030%22%20stroke-width%3D%221.1%22%20opacity%3D%22.65%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");}
+.bellwether-notice::after{content:"";display:block;width:92px;height:46px;margin:5px auto -10px;background:var(--outpost-sprig) center / contain no-repeat;}
+.bellwether-notice .arrival-botanical{display:block!important;width:57px;height:33px;margin:0!important;background:var(--outpost-sprig) center / contain no-repeat;font-size:0!important;line-height:0;}
+.bellwether-notice .arrival-botanical.left{transform:rotate(-32deg);}
+.bellwether-notice .arrival-botanical.right{transform:scaleX(-1) rotate(-32deg);}
+.field-record-toast::before{content:"";width:47px;height:29px;background:var(--outpost-sprig) center / contain no-repeat;}
+.book .pressed{display:block;width:104px;height:54px;margin-left:auto;margin-right:auto;background:var(--outpost-sprig) center / contain no-repeat;font-size:0!important;line-height:0;}
+@media(max-width:700px){.bellwether-notice .arrival-botanical{width:35px;height:24px}.bellwether-notice::after{width:68px;height:33px;margin-bottom:-7px}.field-record-toast::before{width:38px;height:23px}}
+</style>
 </head><body>
 <div id="world" class="ep-webxp" data-webxp-url="https://endlesspaper.net/xp?id=83N1WaVYnKvRW" aria-label="Explore Of Little Things and Faraway Places"></div>
-<div id="bellwetherNotice" class="bellwether-notice" role="status" aria-live="polite" hidden><span class="arrival-botanical left" aria-hidden="true">❧</span><span class="arrival-botanical right" aria-hidden="true">❧</span><strong>Welcome to Bellwether!</strong><span>A little town with a lot of secrets. Keep your eyes open, traveler!</span></div>
+<div id="bellwetherNotice" class="bellwether-notice" role="status" aria-live="polite" hidden><span class="arrival-botanical left" aria-hidden="true"></span><span class="arrival-botanical right" aria-hidden="true"></span><strong>Welcome to Bellwether!</strong><span>A little town with a lot of secrets. Keep your eyes open, traveler!</span></div>
 <aside id="fieldRecordToast" class="field-record-toast" role="status" aria-live="polite" hidden><button id="dismissFieldRecord" type="button" aria-label="Dismiss field record">×</button><div class="record-label">FIELD RECORD · 001</div><strong class="record-title">First Impressions of Bellwether</strong><p class="record-text">At first glance, Bellwether seems like an ordinary place. But the longer I look, the more there is to see.</p><div class="record-saved">✓ Added to Field Notes</div></aside>
 <div id="webxpTestStatus" class="webxp-test-status" role="status" aria-live="polite">Connecting to Endless Paper…</div>
 <button id="openJournal" class="journal-button" type="button" aria-haspopup="dialog" aria-controls="journal">✧ Traveler's Journal</button>
@@ -168,7 +180,7 @@
  </div>
 </div>
 <div class="veil" id="journal" role="dialog" aria-modal="true" aria-labelledby="journalTitle" aria-hidden="true"><div class="book-shell"><button id="closeJournal" class="close" type="button" aria-label="Close journal">×</button><div class="book">
-<section class="page left"><div class="eyebrow">A record of peculiar places</div><h1 id="journalTitle">Traveler's Journal</h1><p>Of Little Things and Faraway Places</p><div class="rule"></div><p class="note">Some places are easy to find.<br>Others are waiting to be noticed.</p><p>These pages contain notes gathered along the way. Take what you need, and keep your eyes open.</p><div class="foot">— A fellow traveler</div><span class="pressed" aria-hidden="true">❧</span></section>
+<section class="page left"><div class="eyebrow">A record of peculiar places</div><h1 id="journalTitle">Traveler's Journal</h1><p>Of Little Things and Faraway Places</p><div class="rule"></div><p class="note">Some places are easy to find.<br>Others are waiting to be noticed.</p><p>These pages contain notes gathered along the way. Take what you need, and keep your eyes open.</p><div class="foot">— A fellow traveler</div><span class="pressed" aria-hidden="true"></span></section>
 <section class="page right"><div class="eyebrow">Turn to a section</div><nav class="tabs" aria-label="Journal sections"><button class="tab" data-section="discoveries" aria-selected="true">Discoveries</button><button class="tab" data-section="mysteries" aria-selected="false">Mysteries</button><button class="tab" data-section="worlds" aria-selected="false">Places</button><button class="tab" data-section="notes" aria-selected="false">Field Notes</button></nav><div id="sectionContent" aria-live="polite"></div></section>
 </div></div></div>
 <script>
