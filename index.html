@@ -510,7 +510,7 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
  document.getElementById('kitJournal').addEventListener('click',()=>showJournal());
  document.getElementById('kitPassport').addEventListener('click',showPassport);
  document.getElementById('kitPlaces').addEventListener('click',()=>showJournal('worlds'));
- fold.addEventListener('click',()=>{const collapsed=kit.classList.toggle('is-folded');fold.textContent=collapsed?'+':'−';fold.setAttribute('aria-expanded',String(!collapsed));fold.setAttribute('aria-label',collapsed?'Expand explorer's toolkit':'Collapse explorer's toolkit');});
+ fold.addEventListener('click',()=>{const collapsed=kit.classList.toggle('is-folded');fold.textContent=collapsed?'+':'−';fold.setAttribute('aria-expanded',String(!collapsed));fold.setAttribute('aria-label',collapsed?"Expand explorer's toolkit":"Collapse explorer's toolkit");});
 })();
 </script>
 </body></html>
