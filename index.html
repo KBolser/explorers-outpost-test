@@ -440,9 +440,9 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
        // A close zoom alone is not enough: the town must remain on screen.
        if(!inTown && valid && zoom<=ARRIVE_ZOOM) {
          inTown=true;
-         if(!greetingShown){notice.hidden=false;greetingShown=true;clearTimeout(welcomeTimer);welcomeTimer=setTimeout(()=>{notice.hidden=true;},4400);}
+         if(!greetingShown){notice.hidden=false;greetingShown=true;clearTimeout(welcomeTimer);welcomeTimer=setTimeout(()=>{notice.hidden=true;},8000);}
          clearTimeout(fieldTimer);
-         fieldTimer=setTimeout(offerFieldRecord,5500);
+         fieldTimer=setTimeout(offerFieldRecord,9000);
        } else if(inTown && (!valid || zoom>LEAVE_ZOOM)) {
          inTown=false;
          greetingShown=false;
