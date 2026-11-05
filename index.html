@@ -83,25 +83,30 @@
 /* Bellwether location-awareness experiment: isolated from journal and passport. */
 #world iframe{display:block;width:100%;height:100%;border:0}
 /* Parchment welcome: visually distinct from the smaller field record. */
-.bellwether-notice{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:4;width:min(420px,calc(100vw - 32px));padding:17px 25px 18px;border:1px solid #9d7c50;border-radius:5px 9px 6px 8px;background:linear-gradient(135deg,#f2e3c5,#dec59b 95%);color:#4b3525;box-shadow:0 9px 27px #0009, inset 0 0 0 4px #fff4d626;text-align:center;pointer-events:none;font:17px Kalam,cursive}
+/* Outpost parchment notifications — visual-only revision */
+.bellwether-notice{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:4;width:min(565px,calc(100vw - 32px));padding:26px 42px 24px;border:2px solid #9a6b39;border-radius:14px 9px 17px 11px;background:radial-gradient(ellipse at 48% 45%,#fff0cd 0%,#f4ddb0 49%,#d4a86c 100%);color:#49301c;box-shadow:0 14px 34px #0009,0 3px 0 #57381e,inset 0 0 0 5px #f7e6c27a,inset 0 0 0 7px #a47c4a70,inset 0 0 38px #8a542850;text-align:center;pointer-events:none;font:17px Kalam,cursive;isolation:isolate}
 .bellwether-notice[hidden]{display:none!important}
-.bellwether-notice::before{content:'✦ A NEW PLACE DISCOVERED ✦';display:block;letter-spacing:.09em;font:700 11px 'Libre Baskerville',serif;color:#78603e;margin-bottom:7px}
-.bellwether-notice strong{display:block;font:700 30px Caveat,cursive}
-.bellwether-notice span{display:block;margin-top:5px}
-.field-record-toast{position:fixed;right:20px;bottom:46px;z-index:5;width:min(345px,calc(100vw - 30px));padding:19px 22px 17px;background:linear-gradient(140deg,#f1e4c9,#ddc69f);border:1px solid #ad9270;border-radius:3px 8px 5px 6px;color:#4b3726;box-shadow:0 8px 28px #0009;font:16px Kalam,cursive;animation:note-in .3s ease-out}
+.bellwether-notice::before{content:'✦  A NEW PLACE DISCOVERED  ✦';display:block;letter-spacing:.16em;font:700 10px 'Libre Baskerville',serif;color:#79532f;margin:0 24px 12px;padding-bottom:10px;border-bottom:1px solid #aa8657}
+.bellwether-notice::after{content:'❧';display:block;font:27px Georgia,serif;color:#8a6c3e;line-height:1;margin-top:8px}
+.bellwether-notice strong{display:block;font:700 clamp(29px,4vw,43px) Caveat,cursive;line-height:1.05;text-shadow:0 1px #fff1d2}
+.bellwether-notice span{display:block;margin:10px auto 0;max-width:430px;line-height:1.35}
+.bellwether-notice .arrival-lantern{position:absolute;left:-14px;top:24px;width:54px;height:78px;filter:drop-shadow(2px 5px 3px #0007)}
+.bellwether-notice .arrival-seal{position:absolute;right:-17px;top:50%;transform:translateY(-50%) rotate(11deg);width:61px;height:61px;border:3px double #f0b78a;border-radius:50%;background:radial-gradient(circle at 34% 30%,#bc5739,#812c24 74%);color:#f5cb91;display:grid;place-items:center;font:38px Georgia,serif;box-shadow:0 3px 9px #0007,inset 0 0 0 3px #852b23}
+.field-record-toast{position:fixed;right:20px;bottom:46px;z-index:5;width:min(370px,calc(100vw - 30px));padding:25px 27px 19px;background:radial-gradient(ellipse at 40% 30%,#fff0d1,#efd8ae 65%,#cfa477 100%);border:2px solid #a77a49;border-radius:7px 13px 5px 12px;color:#4b3726;box-shadow:0 10px 30px #0009,3px 4px 0 #8b613b,inset 0 0 0 5px #f9e8c681,inset 0 0 28px #a16b3b52;font:16px Kalam,cursive;animation:note-in .3s ease-out}
 .field-record-toast[hidden]{display:none!important}
-.field-record-toast .record-label{font:700 10px 'Libre Baskerville',serif;letter-spacing:.12em;color:#7b654a}
-.field-record-toast .record-title{display:block;font:700 27px Caveat,cursive;margin:6px 24px 4px 0}
-.field-record-toast .record-text{margin:0;line-height:1.35}
-.field-record-toast .record-saved{margin-top:12px;border-top:1px solid #bba789;padding-top:8px;text-align:right;font-size:13px;color:#556347}
-.field-record-toast button{position:absolute;right:9px;top:7px;border:0;background:transparent;color:#6c543b;font:26px Caveat,cursive;cursor:pointer}
+.field-record-toast::before{content:'❧';position:absolute;left:12px;top:8px;color:#97784f;font:23px Georgia,serif}
+.field-record-toast .record-label{font:700 10px 'Libre Baskerville',serif;letter-spacing:.12em;color:#765337;text-align:center;border-bottom:1px solid #bba07a;padding-bottom:11px;margin:0 20px 10px}
+.field-record-toast .record-title{display:block;font:700 29px Caveat,cursive;margin:6px 24px 9px 0;line-height:1.1}
+.field-record-toast .record-text{margin:0;line-height:1.4}
+.field-record-toast .record-saved{margin-top:15px;border:1px solid #79835b;border-radius:3px;padding:7px 9px;text-align:center;font:700 13px Kalam,cursive;color:#53603d;transform:rotate(-2deg);width:max-content;max-width:100%;margin-left:auto;background:#f7e6c066}
+.field-record-toast button{position:absolute;right:9px;top:7px;border:1px solid #b69a72;border-radius:5px;background:#f4deb7;color:#6c543b;font:25px Caveat,cursive;cursor:pointer;width:30px;height:30px;line-height:25px}
 @keyframes note-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 .webxp-test-status{position:fixed;left:12px;bottom:12px;z-index:4;padding:5px 10px;border:1px solid #b9a27a88;border-radius:8px;background:#142a23dc;color:#f2dfbf;font:13px Kalam,cursive;pointer-events:none}
-@media(max-width:700px){.bellwether-notice{top:76px;font-size:15px}.bellwether-notice strong{font-size:22px}.webxp-test-status{font-size:11px;max-width:calc(100vw - 24px)}.field-record-toast{right:12px;bottom:52px;padding:15px 17px}.field-record-toast .record-title{font-size:24px}}
+@media(max-width:700px){.bellwether-notice{top:76px;width:calc(100vw - 42px);padding:21px 27px 16px;font-size:14px}.bellwether-notice strong{font-size:30px}.bellwether-notice::before{font-size:8px;margin:0 9px 10px}.bellwether-notice .arrival-lantern{width:33px;height:50px;left:-10px;top:18px}.bellwether-notice .arrival-seal{width:41px;height:41px;font-size:25px;right:-12px}.webxp-test-status{font-size:11px;max-width:calc(100vw - 24px)}.field-record-toast{right:12px;bottom:52px;padding:20px 19px 16px}.field-record-toast .record-title{font-size:25px}}
 </style>
 </head><body>
 <div id="world" class="ep-webxp" data-webxp-url="https://endlesspaper.net/xp?id=83N1WaVYnKvRW" aria-label="Explore Of Little Things and Faraway Places"></div>
-<div id="bellwetherNotice" class="bellwether-notice" role="status" aria-live="polite" hidden><strong>🏘️ Welcome to Bellwether!</strong><span>A little town with a lot of secrets. Keep your eyes open, traveler!</span></div>
+<div id="bellwetherNotice" class="bellwether-notice" role="status" aria-live="polite" hidden><svg class="arrival-lantern" viewBox="0 0 60 90" aria-hidden="true"><path d="M20 19L30 6L40 19M16 23H44L48 30L42 68H18L12 30Z" fill="#56351f" stroke="#321c11" stroke-width="3"/><path d="M21 29H39L37 60H23Z" fill="#ffdc83" stroke="#f4b54d" stroke-width="2"/><path d="M30 30V61M15 30H45M17 69H43M30 69V80" fill="none" stroke="#4c2b18" stroke-width="4"/><path d="M25 56Q19 44 30 35Q40 47 34 56Z" fill="#fff6c2"/></svg><div class="arrival-seal" aria-hidden="true">✧</div><strong>Welcome to Bellwether!</strong><span>A little town with a lot of secrets. Keep your eyes open, traveler!</span></div>
 <aside id="fieldRecordToast" class="field-record-toast" role="status" aria-live="polite" hidden><button id="dismissFieldRecord" type="button" aria-label="Dismiss field record">×</button><div class="record-label">FIELD RECORD · 001</div><strong class="record-title">First Impressions of Bellwether</strong><p class="record-text">At first glance, Bellwether seems like an ordinary place. But the longer I look, the more there is to see.</p><div class="record-saved">✓ Added to Field Notes</div></aside>
 <div id="webxpTestStatus" class="webxp-test-status" role="status" aria-live="polite">Connecting to Endless Paper…</div>
 <button id="openJournal" class="journal-button" type="button" aria-haspopup="dialog" aria-controls="journal">✧ Traveler's Journal</button>
