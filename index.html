@@ -110,6 +110,49 @@
  .bellwether-notice .arrival-botanical.left{left:9px}
  .bellwether-notice .arrival-botanical.right{right:9px}
 }
+
+/* V19: hand-cut parchment page markers, kept accessible during journal scrolling. */
+.book .page.right .tabs{
+ position:sticky;top:0;z-index:8;
+ display:flex;flex-wrap:wrap;align-items:flex-end;gap:5px;
+ margin:8px -5px 14px;padding:8px 5px 10px;
+ background:linear-gradient(180deg,#f0ddb9 0%,#f0ddb9f5 83%,#f0ddb900 100%);
+}
+.book .page.right .tab{
+ position:relative;isolation:isolate;
+ border:1.5px solid #96744f;
+ border-bottom:2px solid #82613e;
+ border-radius:3px 10px 5px 8px;
+ padding:8px 10px 6px;
+ background:linear-gradient(140deg,#f5dfb3,#e0bd84);
+ color:#513b29;
+ box-shadow:1px 2px 0 #a88758a6,inset 0 0 0 2px #f9e9c177;
+ font:700 18px/1.1 Kalam,Caveat,cursive;
+ text-shadow:0 1px #fff5dc8a;
+ transform:rotate(-1deg);
+ cursor:pointer;
+ transition:transform .16s ease,box-shadow .16s ease;
+}
+.book .page.right .tab:nth-child(2){transform:rotate(1.4deg);border-radius:9px 3px 10px 5px;background:linear-gradient(145deg,#eddbb3,#d4b38a)}
+.book .page.right .tab:nth-child(3){transform:rotate(-1.5deg);border-radius:4px 9px 4px 11px;background:linear-gradient(140deg,#e4d5ad,#c3b18a)}
+.book .page.right .tab:nth-child(4){transform:rotate(.8deg);border-radius:10px 5px 8px 3px;background:linear-gradient(145deg,#efddb9,#d7bb93)}
+.book .page.right .tab:hover{transform:rotate(0deg) translateY(-3px)}
+.book .page.right .tab[aria-selected="true"]{
+ background:linear-gradient(140deg,#6e7d60,#4d6149);
+ color:#fff0d4;border-color:#536047;
+ box-shadow:1px 3px 0 #4d583e,inset 0 0 0 2px #b7bd9070;
+ transform:rotate(0deg) translateY(-2px);
+ text-shadow:none;
+}
+.book .page.right .tab[aria-selected="true"]::after{content:'❧';font:14px Georgia,serif;margin-left:5px;color:#d7dcb5}
+.book .page.right .tab:focus-visible{outline:3px solid #59715c;outline-offset:3px}
+@media(max-width:700px){
+ .book .page.right .tabs{
+  top:0;z-index:12;gap:4px;margin:6px -9px 12px;padding:8px 5px 10px;
+  background:linear-gradient(180deg,#f0ddbafc 0%,#f0ddbafc 85%,#f0ddba00 100%);
+ }
+ .book .page.right .tab{font-size:clamp(13px,3.4vw,18px);padding:7px 6px 6px}
+}
 </style>
 <style>/* Desktop journal: give the right-hand page a comfortable outer margin. */
 @media (min-width:701px){.book .page.right{padding-right:36px;margin-bottom:48px;padding-bottom:32px;}}
@@ -202,7 +245,57 @@ button.compass-destination:hover{transform:translateX(3px);background:#fff8e7}
 .stamp-press:disabled{opacity:.55;cursor:default}
 .stamp-press:not(:disabled):hover{background:#665a3e}
 .stamp-status{font:13px Kalam,cursive;min-height:18px;margin-top:6px}
-</style></head><body>
+</style>
+<style id="journal-page-markers-v20">
+/* Paper slips, not UI buttons. Fully opaque backing prevents writing from showing through. */
+.book .page.right .tabs{
+ position:sticky!important;top:0!important;z-index:30!important;
+ display:flex;flex-wrap:wrap;align-items:flex-end;gap:3px;
+ padding:15px 8px 17px!important;margin:0 -8px 15px!important;
+ background:#f0ddb9!important;
+ border-bottom:1px solid #b89b73;
+ box-shadow:0 9px 10px -8px #6b4b2f80;
+ isolation:isolate;
+}
+.book .page.right .tabs::before{
+ content:'';position:absolute;z-index:-1;
+ inset:-30px -16px 0;background:#f0ddb9;
+ pointer-events:none;
+}
+.book .page.right .tab,
+.book .page.right .tab:nth-child(n){
+ appearance:none;border:0!important;border-radius:0!important;
+ box-shadow:none!important;text-shadow:none!important;
+ color:#654b35!important;
+ background:#e6cda1!important;
+ padding:10px 9px 8px!important;
+ font:500 19px/1.15 Caveat,cursive!important;
+ letter-spacing:.15px;
+ clip-path:polygon(0 4%,12% 0,29% 3%,45% 0,64% 3%,83% 0,100% 5%,98% 94%,80% 100%,62% 97%,42% 100%,20% 96%,2% 100%);
+ transform:rotate(-2deg)!important;
+ transition:transform .15s ease,background .15s ease;
+}
+.book .page.right .tab:nth-child(2){background:#e9d5b2!important;transform:rotate(1deg)!important}
+.book .page.right .tab:nth-child(3){background:#ddd0ae!important;transform:rotate(-1deg)!important}
+.book .page.right .tab:nth-child(4){background:#ebd7b4!important;transform:rotate(1.5deg)!important}
+.book .page.right .tab:hover{transform:translateY(-3px) rotate(0deg)!important}
+.book .page.right .tab[aria-selected="true"]{
+ background:#c2c7a7!important;color:#384e3c!important;
+ text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;
+ transform:translateY(-2px) rotate(-1deg)!important;
+}
+.book .page.right .tab[aria-selected="true"]::after{content:'❧';font:12px Georgia,serif;margin-left:3px}
+@media(max-width:700px){
+ .book .page.right .tabs{
+  top:0!important;z-index:35!important;gap:2px;
+  padding:13px 4px 15px!important;margin:0 -5px 14px!important;
+ }
+ .book .page.right .tab,.book .page.right .tab:nth-child(n){
+  font-size:clamp(15px,3.7vw,19px)!important;padding:9px 5px 8px!important;
+ }
+}
+</style>
+</head><body>
 <div id="world" class="ep-webxp" data-webxp-url="https://endlesspaper.net/xp?id=83N1WaVYnKvRW" data-webxp-show-navbar="false" aria-label="Explore Of Little Things and Faraway Places"></div>
 
 <nav class="explorer-kit" id="explorerKit" aria-label="Explorer's toolkit">
