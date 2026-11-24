@@ -802,7 +802,7 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
  }
  const panel=document.createElement('pre');panel.style.cssText='position:fixed;top:12px;left:12px;z-index:2000;background:#fff4d8;color:#392b20;padding:10px;font:12px/1.5 monospace;max-width:90vw;white-space:pre-wrap;pointer-events:none';document.body.append(panel);
  const rows=new Map([...mapping.keys()].map(k=>[k,'waiting']));let events=0,connection='Waiting for WebXP';
- function display(){panel.textContent='Duck diagnostics V23 | '+connection+' | events '+events+'\n'+[...rows].map(([k,v])=>k+': '+v).join('\n');}display();
+ function display(){panel.textContent='Duck diagnostics V24 | '+connection+' | events '+events+'\n'+[...rows].map(([k,v])=>k+': '+v).join('\n');}display();
  if(!window.EndlessPaper){connection='Library missing';display();return;}
  EndlessPaper.onLoad(function(iframe){
   if(iframe.parentElement?.id!=='world')return;
@@ -812,7 +812,7 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
    if(!b){rows.set(name,'not nearby');display();return;}
    const zoom=Number(b.zoomFactor),visible=b.intersectionInfo?.visibleBookmarkRatio;
    rows.set(name,'zoom '+zoom.toFixed(3)+' | visible '+(visible==null?'unknown':(visible*100).toFixed(1)+'%')+' | '+(duckProgress[duck.id]?'recorded':window.explorerDiscoveryReady?.()===false?'account loading':'not recorded'));
-   if(Number.isFinite(zoom)&&zoom<=1.5&&visible>=0.6){try{record(duck);if(duckProgress[duck.id])rows.set(name,rows.get(name)+' → recorded');}catch(e){rows.set(name,'Record error: '+e.message);}}display();
+   if(Number.isFinite(zoom)&&zoom>0&&zoom<=16&&visible>=0.95){try{record(duck);if(duckProgress[duck.id])rows.set(name,rows.get(name)+' → recorded');}catch(e){rows.set(name,'Record error: '+e.message);}}display();
   },iframe);}catch(e){rows.set(name,'Listener error: '+e.message);display();}}
  });
 })();
