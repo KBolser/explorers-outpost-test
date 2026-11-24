@@ -818,14 +818,14 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
  if(!window.EndlessPaper)return;
  EndlessPaper.onLoad(function(iframe){
   if(iframe.parentElement?.id!=='world')return;
-  function listen(name,action){try{EndlessPaper.onBookmarkNearby({name:name},function(bookmarks){
+  function listen(name,action,maxZoom=16){try{EndlessPaper.onBookmarkNearby({name:name},function(bookmarks){
    const b=Array.isArray(bookmarks)?bookmarks.find(x=>x.name===name):null;
    if(!b)return;
    const zoom=Number(b.zoomFactor),visible=b.intersectionInfo?.visibleBookmarkRatio;
-   if(Number.isFinite(zoom)&&zoom>0&&zoom<=16&&visible>=0.95){try{action();}catch(e){console.error('Discovery record error',name,e);}}
+   if(Number.isFinite(zoom)&&zoom>0&&zoom<=maxZoom&&visible>=0.95){try{action();}catch(e){console.error('Discovery record error',name,e);}}
   },iframe);}catch(e){console.error('Discovery listener error',name,e);}}
   for(const [name,duck] of mapping)listen(name,()=>record(duck));
-  for(const [name,item] of colors)listen(name,()=>recordColor(item));
+  for(const [name,item] of colors)listen(name,()=>recordColor(item),4);
  });
 })();
 </script>
