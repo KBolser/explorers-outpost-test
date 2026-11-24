@@ -800,15 +800,20 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
   toast.querySelector('span').textContent=duck.title+' found · '+count+' / 3 ducks';
   toast.hidden=false;clearTimeout(timer);timer=setTimeout(()=>toast.hidden=true,4500);
  }
- if(!window.EndlessPaper)return;
+ const panel=document.createElement('pre');panel.style.cssText='position:fixed;top:12px;left:12px;z-index:2000;background:#fff4d8;color:#392b20;padding:10px;font:12px/1.5 monospace;max-width:90vw;white-space:pre-wrap;pointer-events:none';document.body.append(panel);
+ const rows=new Map([...mapping.keys()].map(k=>[k,'waiting']));let events=0,connection='Waiting for WebXP';
+ function display(){panel.textContent='Duck diagnostics V23 | '+connection+' | events '+events+'\n'+[...rows].map(([k,v])=>k+': '+v).join('\n');}display();
+ if(!window.EndlessPaper){connection='Library missing';display();return;}
  EndlessPaper.onLoad(function(iframe){
   if(iframe.parentElement?.id!=='world')return;
-  EndlessPaper.onBookmarkNearby({name:[...mapping.keys()]},function(bookmarks){
-   for(const b of Array.isArray(bookmarks)?bookmarks:[]){
-    const duck=mapping.get(b.name),zoom=Number(b.zoomFactor),visible=b.intersectionInfo?.visibleBookmarkRatio;
-    if(duck&&Number.isFinite(zoom)&&zoom<=1.5&&visible>=0.6)record(duck);
-   }
-  },iframe);
+  connection='Connected';display();
+  for(const [name,duck] of mapping){try{EndlessPaper.onBookmarkNearby({name:name},function(bookmarks){
+   events++;const b=Array.isArray(bookmarks)?bookmarks.find(x=>x.name===name):null;
+   if(!b){rows.set(name,'not nearby');display();return;}
+   const zoom=Number(b.zoomFactor),visible=b.intersectionInfo?.visibleBookmarkRatio;
+   rows.set(name,'zoom '+zoom.toFixed(3)+' | visible '+(visible==null?'unknown':(visible*100).toFixed(1)+'%')+' | '+(duckProgress[duck.id]?'recorded':window.explorerDiscoveryReady?.()===false?'account loading':'not recorded'));
+   if(Number.isFinite(zoom)&&zoom<=1.5&&visible>=0.6){try{record(duck);if(duckProgress[duck.id])rows.set(name,rows.get(name)+' → recorded');}catch(e){rows.set(name,'Record error: '+e.message);}}display();
+  },iframe);}catch(e){rows.set(name,'Listener error: '+e.message);display();}}
  });
 })();
 </script>
