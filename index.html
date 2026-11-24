@@ -295,7 +295,7 @@ button.compass-destination:hover{transform:translateX(3px);background:#fff8e7}
  }
 }
 </style>
-</head><body>
+<style>#webxpTestStatus{display:none!important}</style></head><body>
 <div id="world" class="ep-webxp" data-webxp-url="https://endlesspaper.net/xp?id=5g9RjrbVklnRZ" data-webxp-show-navbar="false" aria-label="Explore Of Little Things and Faraway Places"></div>
 
 <nav class="explorer-kit" id="explorerKit" aria-label="Explorer's toolkit">
@@ -800,20 +800,32 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
   toast.querySelector('span').textContent=duck.title+' found · '+count+' / 3 ducks';
   toast.hidden=false;clearTimeout(timer);timer=setTimeout(()=>toast.hidden=true,4500);
  }
- const panel=document.createElement('pre');panel.style.cssText='position:fixed;top:12px;left:12px;z-index:2000;background:#fff4d8;color:#392b20;padding:10px;font:12px/1.5 monospace;max-width:90vw;white-space:pre-wrap;pointer-events:none';document.body.append(panel);
- const rows=new Map([...mapping.keys()].map(k=>[k,'waiting']));let events=0,connection='Waiting for WebXP';
- function display(){panel.textContent='Duck diagnostics V24 | '+connection+' | events '+events+'\n'+[...rows].map(([k,v])=>k+': '+v).join('\n');}display();
- if(!window.EndlessPaper){connection='Library missing';display();return;}
+ const colors=new Map();
+ colorClues.forEach((clue,i)=>{
+  for(let j=0;j<clue.count;j++) colors.set('Discovery 002 Clue '+(i+1)+(clue.count===1?'':' '+(j+1)),{clue,j});
+ });
+ function recordColor({clue,j}){
+  if(colorProgress[clue.id][j]||window.explorerDiscoveryReady?.()===false)return;
+  colorProgress[clue.id][j]=true;
+  if(!window.explorerCloudActive){try{localStorage.setItem(colorKey,JSON.stringify(colorProgress))}catch(e){}}
+  window.saveExplorerProgress?.();
+  if(document.querySelector('.tab[aria-selected="true"]')?.dataset.section==='discoveries')showSection('discoveries');
+  const count=colorClues.reduce((n,c)=>n+colorProgress[c.id].filter(Boolean).length,0);
+  toast.querySelector('strong').textContent=count===11?'Discovery Complete!':'Discovery Recorded!';
+  toast.querySelector('span').textContent=clue.title+(clue.count>1?' · No. '+(j+1):'')+' found · '+count+' / 11 missing colors';
+  toast.hidden=false;clearTimeout(timer);timer=setTimeout(()=>toast.hidden=true,4500);
+ }
+ if(!window.EndlessPaper)return;
  EndlessPaper.onLoad(function(iframe){
   if(iframe.parentElement?.id!=='world')return;
-  connection='Connected';display();
-  for(const [name,duck] of mapping){try{EndlessPaper.onBookmarkNearby({name:name},function(bookmarks){
-   events++;const b=Array.isArray(bookmarks)?bookmarks.find(x=>x.name===name):null;
-   if(!b){rows.set(name,'not nearby');display();return;}
+  function listen(name,action){try{EndlessPaper.onBookmarkNearby({name:name},function(bookmarks){
+   const b=Array.isArray(bookmarks)?bookmarks.find(x=>x.name===name):null;
+   if(!b)return;
    const zoom=Number(b.zoomFactor),visible=b.intersectionInfo?.visibleBookmarkRatio;
-   rows.set(name,'zoom '+zoom.toFixed(3)+' | visible '+(visible==null?'unknown':(visible*100).toFixed(1)+'%')+' | '+(duckProgress[duck.id]?'recorded':window.explorerDiscoveryReady?.()===false?'account loading':'not recorded'));
-   if(Number.isFinite(zoom)&&zoom>0&&zoom<=16&&visible>=0.95){try{record(duck);if(duckProgress[duck.id])rows.set(name,rows.get(name)+' → recorded');}catch(e){rows.set(name,'Record error: '+e.message);}}display();
-  },iframe);}catch(e){rows.set(name,'Listener error: '+e.message);display();}}
+   if(Number.isFinite(zoom)&&zoom>0&&zoom<=16&&visible>=0.95){try{action();}catch(e){console.error('Discovery record error',name,e);}}
+  },iframe);}catch(e){console.error('Discovery listener error',name,e);}}
+  for(const [name,duck] of mapping)listen(name,()=>record(duck));
+  for(const [name,item] of colors)listen(name,()=>recordColor(item));
  });
 })();
 </script>
