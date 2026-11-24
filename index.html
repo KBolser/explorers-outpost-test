@@ -823,11 +823,12 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
    if(!b)return;
    const zoom=Number(b.zoomFactor),visible=b.intersectionInfo?.visibleBookmarkRatio;
    if(name.startsWith('Discovery 002 Clue 1 ')){const row=document.getElementById(name.endsWith(' 1')?'gardenDiag1':'gardenDiag2');if(row)row.textContent=name+' | zoom '+zoom.toFixed(2)+' | visible '+(visible==null?'unknown':Math.round(visible*100)+'%')+' | '+(colorProgress.garden[name.endsWith(' 1')?0:1]?'recorded':'not recorded');}
-   if(Number.isFinite(zoom)&&zoom>0&&zoom<=maxZoom&&visible>=0.95){try{action();}catch(e){console.error('Discovery record error',name,e);}}
+   if(Number.isFinite(zoom)&&zoom>0&&zoom<=maxZoom&&visible>=(name.startsWith('Discovery 002 Clue 1 ')?0.50:0.95)){try{action();}catch(e){console.error('Discovery record error',name,e);}}
+   if(name.startsWith('Discovery 002 Clue 1 ')){const row=document.getElementById(name.endsWith(' 1')?'gardenDiag1':'gardenDiag2');if(row)row.textContent=name+' | zoom '+zoom.toFixed(2)+' | visible '+(visible==null?'unknown':Math.round(visible*100)+'%')+' | '+(colorProgress.garden[name.endsWith(' 1')?0:1]?'recorded':'not recorded')+' | '+(window.explorerCloudActive?'member':'guest')+' | '+(window.explorerDiscoveryReady?.()===false?'waiting':'ready');}
   },iframe);}catch(e){console.error('Discovery listener error',name,e);}}
   for(const [name,duck] of mapping)listen(name,()=>record(duck));
-  for(const [name,item] of colors)listen(name,()=>recordColor(item),item.clue.id==='garden'?8:4);
+  for(const [name,item] of colors)listen(name,()=>recordColor(item),4);
  });
 })();
 </script>
-<div style="position:fixed;top:8px;left:8px;z-index:1100;background:#fffde9;color:#33291d;padding:6px;font:11px monospace;max-width:90vw;pointer-events:none">Garden diagnostics V27<div id="gardenDiag1">Plant 1 waiting</div><div id="gardenDiag2">Plant 2 waiting</div></div></body></html>
+<div style="position:fixed;top:8px;left:8px;z-index:1100;background:#fffde9;color:#33291d;padding:6px;font:11px monospace;max-width:90vw;pointer-events:none">Garden diagnostics V28<div id="gardenDiag1">Plant 1 waiting</div><div id="gardenDiag2">Plant 2 waiting</div></div></body></html>
