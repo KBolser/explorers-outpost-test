@@ -384,7 +384,7 @@ const content={
  worlds:{title:'World Directory',entries:[]},
  notes:{title:'Field Notes',entries:[]}
 };
-const characterCatalog=[{id:'nina',name:'Captain Nina',occupation:'Cargo blimp pilot',home:'Bellwether',encounters:[{id:'nina-001',bookmark:'Captain Nina 001',title:'I. The Woman at the Helm',place:'Bellwether',maxZoom:4,minVisibility:0.85,paragraphs:["I spotted a rather impressive blimp above Bellwether today, piloted by a woman who introduced herself as Captain Nina.","She makes her living hauling cargo from one place to another, though I suspect she spends considerably more time in the air than she does on solid ground.","When I asked where she was headed next, she rattled off a list of deliveries so lengthy that I grew tired simply listening.","I asked when she intended to rest.","She laughed.","I rather suspect that was her answer.","— A fellow traveler"]}]}];
+const characterCatalog=[{id:'nina',name:'Captain Nina',occupation:'Cargo blimp pilot',home:'Bellwether',encounters:[{id:'nina-001',bookmark:'Captain Nina 001',title:'I. The Woman at the Helm',place:'Bellwether',maxZoom:8.5,minVisibility:0.85,paragraphs:["I spotted a rather impressive blimp above Bellwether today, piloted by a woman who introduced herself as Captain Nina.","She makes her living hauling cargo from one place to another, though I suspect she spends considerably more time in the air than she does on solid ground.","When I asked where she was headed next, she rattled off a list of deliveries so lengthy that I grew tired simply listening.","I asked when she intended to rest.","She laughed.","I rather suspect that was her answer.","— A fellow traveler"]}]}];
 const characterKey='outpost-character-encounters-v1';
 const validEncounters=new Set(characterCatalog.flatMap(c=>c.encounters.map(e=>e.id)));
 let characterProgress=[];
@@ -894,7 +894,7 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
  if(guest){const p=document.createElement('p');p.textContent='Every adventure is worth remembering. Create your Explorer’s Passport to preserve your discoveries, collected records, and travels between worlds. Guest progress lasts for this browsing session.';guest.prepend(p);}
  if(!outpostTesting)return;
  const panel=document.createElement('details');panel.style.cssText='position:fixed;top:8px;left:8px;z-index:2000;background:#f0dfbd;color:#493b2a;padding:8px;max-width:85vw;font:14px sans-serif;border:1px solid #94764f;border-radius:5px';panel.open=true;
- const summary=document.createElement('summary');summary.textContent='Creator test V38 · isolated guest session';panel.append(summary);
+ const summary=document.createElement('summary');summary.textContent='Creator test V39 · isolated guest session';panel.append(summary);
  function reset(which){if(!confirm('Reset '+which+' in this test session only?'))return;if(which==='people')outpostSession.setItem(characterKey,'[]');if(which==='toad'){const w=JSON.parse(outpostSession.getItem('welcome-places')||'{}');delete w.toadstool;outpostSession.setItem('welcome-places',JSON.stringify(w));outpostSession.setItem('toad-stamp','false');}if(which==='welcome')outpostSession.setItem('welcome-places','{}');if(which==='ducks'||which==='all')outpostSession.setItem(progressKey,'{}');if(which==='colors'||which==='all')outpostSession.setItem(colorKey,'{}');if(which==='clothing'){const current=JSON.parse(outpostSession.getItem(colorKey)||'{}');current.laundry=[false,false,false];outpostSession.setItem(colorKey,JSON.stringify(current));}location.reload();}
  for(const [label,key] of [['Reset ducks','ducks'],['Reset missing colors','colors'],['Reset Washed Out','clothing'],['Reset both discoveries','all'],['Reset welcome','welcome'],['Reset Toadstool Falls','toad'],['Reset character encounters','people']]){const b=document.createElement('button');b.textContent=label;b.style.cssText='margin:4px;padding:6px';b.onclick=()=>reset(key);panel.append(b);}
  for(let i=1;i<=3;i++){const r=document.createElement('div');r.id='testLaundry'+i;r.textContent='Clothing '+i+' · waiting for bookmark';panel.append(r);}
@@ -922,4 +922,10 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
  function check(){for(const {c,e,inside} of nearby.values())if(inside)collect(c,e);}
  setInterval(check,500);
  if(window.EndlessPaper)EndlessPaper.onLoad(iframe=>{if(iframe.parentElement?.id!=='world')return;for(const c of characterCatalog)for(const e of c.encounters){EndlessPaper.onBookmarkNearby({name:e.bookmark},bookmarks=>{const b=bookmarks?.find(x=>x.name===e.bookmark);const z=Number(b?.zoomFactor),v=b?.intersectionInfo?.visibleBookmarkRatio;nearby.set(e.id,{c,e,inside:!!b&&Number.isFinite(z)&&z>0&&z<=e.maxZoom&&v>=e.minVisibility});check();if(outpostTesting){let d=document.getElementById('diag-'+e.id);if(!d){d=document.createElement('div');d.id='diag-'+e.id;document.querySelector('details:has(#testLaundry1)')?.append(d);}d.textContent=e.bookmark+' · zoom '+(Number.isFinite(z)?z.toFixed(2):'—')+' · visibility '+(v==null?'unknown':Math.round(v*100)+'%')+' · '+(characterProgress.includes(e.id)?'recorded':'not recorded');}},iframe);}});
-})();</script></body></html>
+})();</script><style>
+@media (min-width:701px){
+.book .page.right .tabs{flex-wrap:nowrap;gap:2px;}
+.book .page.right .tab:nth-child(n){flex:0 1 auto;min-width:0;white-space:nowrap;font-size:clamp(11px,1.2vw,16px)!important;padding:8px 3px 7px!important;letter-spacing:0;}
+.book .page.right .tab[aria-selected="true"]::after{display:none;}
+}
+</style></body></html>
