@@ -319,7 +319,7 @@ button.compass-destination:hover{transform:translateX(3px);background:#fff8e7}
 </div>
 <div id="compassCharted" class="compass-charted" role="status" hidden>A new path has been charted!</div>
 <div id="bellwetherNotice" class="bellwether-notice" role="status" aria-live="polite" hidden><span class="arrival-botanical left" aria-hidden="true"></span><span class="arrival-botanical right" aria-hidden="true"></span><strong>Welcome to Bellwether!</strong><span>A little town with a lot of secrets. Keep your eyes open, traveler!</span></div>
-<aside id="fieldRecordToast" class="field-record-toast" role="status" aria-live="polite" hidden><button id="dismissFieldRecord" type="button" aria-label="Dismiss field record">×</button><div class="record-label">FIELD RECORD · 001</div><strong class="record-title">First Impressions of Bellwether</strong><p class="record-text">At first glance, Bellwether seems like an ordinary place. But the longer I look, the more there is to see.</p><div class="record-saved">✓ Added to Field Notes</div></aside>
+<div id="toadNotice" class="bellwether-notice" role="status" aria-live="polite" hidden><span class="arrival-botanical left" aria-hidden="true"></span><span class="arrival-botanical right" aria-hidden="true"></span><strong>Welcome to Toadstool Falls!</strong><span>Where little things grow larger than life.</span></div><aside id="fieldRecordToast" class="field-record-toast" role="status" aria-live="polite" hidden><button id="dismissFieldRecord" type="button" aria-label="Dismiss field record">×</button><div class="record-label">FIELD RECORD · 001</div><strong class="record-title">First Impressions of Bellwether</strong><p class="record-text">At first glance, Bellwether seems like an ordinary place. But the longer I look, the more there is to see.</p><div class="record-saved">✓ Added to Field Notes</div></aside>
 <div id="webxpTestStatus" class="webxp-test-status" role="status" aria-live="polite">Connecting to Endless Paper…</div>
 <button id="openJournal" class="journal-button" type="button" aria-haspopup="dialog" aria-controls="journal">✧ Traveler's Journal</button>
 
@@ -349,7 +349,7 @@ button.compass-destination:hover{transform:translateX(3px);background:#fff8e7}
 </div>
 <button id="pressBellwetherStamp" class="stamp-press" type="button" disabled>Undiscovered</button>
 <div id="stampStatus" class="stamp-status" role="status"></div>
-</section>  <div id="passportStatus" class="passport-status" role="status" aria-live="polite"></div>
+<div id="toadStampSection" hidden><div id="toadStamp" class="stamp-art" aria-label="Toadstool Falls passport stamp"><svg viewBox="0 0 90 65" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 58H85M17 58V29M29 58V29M7 29Q9 8 23 8Q39 8 42 29Z M53 58V21M66 58V21M44 21Q46 3 59 3Q74 3 80 21Z M29 38Q42 48 53 30M29 31Q42 41 53 23M35 35V42M42 36V43M48 30V37"/><circle cx="19" cy="17" r="3"/><circle cx="30" cy="23" r="2"/><circle cx="60" cy="12" r="3"/></svg><b>TOADSTOOL FALLS</b><small id="toadSeal">UNSTAMPED</small></div><button id="pressToadStamp" class="stamp-press" type="button">Press Stamp</button><div id="toadStampStatus" class="stamp-status"></div></div></section>  <div id="passportStatus" class="passport-status" role="status" aria-live="polite"></div>
  </div>
 </div>
 <div class="veil" id="journal" role="dialog" aria-modal="true" aria-labelledby="journalTitle" aria-hidden="true"><div class="book-shell"><button id="closeJournal" class="close" type="button" aria-label="Close journal">×</button><div class="book">
@@ -456,6 +456,7 @@ const worldEntries=[
 function addWorldDirectory(){
  const intro=document.createElement('p');intro.className='world-intro';intro.textContent="I've learned that the strangest places are often hidden in the most ordinary things. Here are the worlds I've encountered along the way.";sectionContent.append(intro);
  for(const world of worldEntries){
+  if(world.name!=='Bellwether' && !(world.name==='Toadstool Falls' && window.explorerWelcomes?.get().toadstool))continue;
   const entry=document.createElement('div');entry.className='entry world-entry';
   const name=document.createElement('strong');name.textContent=world.name;
   const description=document.createElement('p');description.textContent=world.description;
@@ -513,17 +514,18 @@ window.explorerPassportStamps={
  claim(){if(bellwetherStamped)return;bellwetherStamped=true;try{outpostSession.setItem(STAMP_GUEST_KEY,'true')}catch(_){};window.dispatchEvent(new Event('outpost-stamp-changed'));if(window.explorerCloudActive&&window.saveExplorerProgress)window.saveExplorerProgress()}
 };
 // Welcome history uses the same account progress record as discoveries.
+let toadStamped=false;try{toadStamped=outpostSession.getItem("toad-stamp")==="true"}catch(_){}
 let welcomedPlaces={};
 try{welcomedPlaces=JSON.parse(outpostSession.getItem('welcome-places')||'{}')}catch(_){}
 window.explorerWelcomeReady=outpostTesting;
 window.explorerWelcomes={
  get(){return {...welcomedPlaces}},
- apply(value){welcomedPlaces={...(value||{})}},
+ apply(value){welcomedPlaces={...(value||{})};window.dispatchEvent(new Event("toad-changed"))},
  claim(place){if(!window.explorerWelcomeReady||window.explorerDiscoveryReady?.()===false||welcomedPlaces[place])return false;welcomedPlaces[place]=true;if(window.explorerCloudActive)window.saveExplorerProgress?.();else try{outpostSession.setItem('welcome-places',JSON.stringify(welcomedPlaces))}catch(_){};return true}
 };
 window.explorerProgressBridge={
- snapshot(){return {ducks:Object.fromEntries(duckClues.map(d=>[d.id,!!duckProgress[d.id]])),colors:Object.fromEntries(colorClues.map(c=>[c.id,colorProgress[c.id].map(Boolean)])),welcomes:window.explorerWelcomes.get(),fieldRecords:window.explorerFieldNotes.get(),stamps:{bellwether:window.explorerPassportStamps.get()}}},
- apply(progress){window.explorerWelcomes.apply(progress?.welcomes);const d=progress?.ducks||{},c=progress?.colors||{};window.explorerFieldNotes.apply(progress?.fieldRecords||[]);window.explorerPassportStamps.apply(progress?.stamps?.bellwether===true);for(const duck of duckClues)duckProgress[duck.id]=d[duck.id]===true;for(const clue of colorClues)colorProgress[clue.id]=Array.from({length:clue.count},(_,i)=>c[clue.id]?.[i]===true);if(document.querySelector('.tab[data-section="discoveries"]')?.getAttribute('aria-selected')==='true')showSection('discoveries');else if(document.querySelector('.tab[data-section="tales"]')?.getAttribute('aria-selected')==='true')showSection('tales')}
+ snapshot(){return {ducks:Object.fromEntries(duckClues.map(d=>[d.id,!!duckProgress[d.id]])),colors:Object.fromEntries(colorClues.map(c=>[c.id,colorProgress[c.id].map(Boolean)])),welcomes:window.explorerWelcomes.get(),fieldRecords:window.explorerFieldNotes.get(),stamps:{bellwether:window.explorerPassportStamps.get(),toadstool:toadStamped}}},
+ apply(progress){toadStamped=progress?.stamps?.toadstool===true;window.explorerWelcomes.apply(progress?.welcomes);const d=progress?.ducks||{},c=progress?.colors||{};window.explorerFieldNotes.apply(progress?.fieldRecords||[]);window.explorerPassportStamps.apply(progress?.stamps?.bellwether===true);for(const duck of duckClues)duckProgress[duck.id]=d[duck.id]===true;for(const clue of colorClues)colorProgress[clue.id]=Array.from({length:clue.count},(_,i)=>c[clue.id]?.[i]===true);if(document.querySelector('.tab[data-section="discoveries"]')?.getAttribute('aria-selected')==='true')showSection('discoveries');else if(document.querySelector('.tab[data-section="tales"]')?.getAttribute('aria-selected')==='true')showSection('tales')}
 };
 </script>
 
@@ -742,15 +744,16 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
   const future=document.createElement('div');
   future.className='compass-destination';
   future.innerHTML='<span class="symbol"><svg viewBox="0 0 68 68" aria-hidden="true"><g fill="none" stroke="#7d684b" stroke-width="3" stroke-linejoin="round"><path d="M23 30V23a11 11 0 0 1 22 0v7"/><rect x="18" y="30" width="32" height="26" rx="4" fill="#e3cc9f"/><circle cx="34" cy="40" r="3" fill="#7d684b"/><path d="M34 43v6"/></g></svg></span><span><strong>Uncharted Destination</strong><small>More paths await discovery</small></span>';
+  if(window.explorerWelcomes.get().toadstool){const t=document.createElement('button');t.type='button';t.className='compass-destination';t.innerHTML='<span class="symbol" aria-hidden="true">🍄</span><span><strong>Toadstool Falls</strong><small>Discovered · Return to location</small></span>';t.onclick=()=>travel('Toadstool Falls');entries.appendChild(t);}
   entries.appendChild(future);
  }
- function travel(){
+ function travel(destination){
   message.textContent='';
   try{
    if(typeof EndlessPaper?.visitBookmark!=='function')throw new Error('Bookmark navigation is not available yet.');
    const iframe=document.querySelector('#world iframe');
    // Bookmark name is the exact working name in the Endless Paper canvas.
-   EndlessPaper.visitBookmark('The Town of Bellwether',iframe);
+   EndlessPaper.visitBookmark(typeof destination==='string'?destination:'The Town of Bellwether',iframe);
    close();
   }catch(err){message.textContent='Could not travel yet: '+(err.message||err);}
  }
@@ -872,10 +875,19 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
  if(guest){const p=document.createElement('p');p.textContent='Every adventure is worth remembering. Create your Explorer’s Passport to preserve your discoveries, collected records, and travels between worlds. Guest progress lasts for this browsing session.';guest.prepend(p);}
  if(!outpostTesting)return;
  const panel=document.createElement('details');panel.style.cssText='position:fixed;top:8px;left:8px;z-index:2000;background:#f0dfbd;color:#493b2a;padding:8px;max-width:85vw;font:14px sans-serif;border:1px solid #94764f;border-radius:5px';panel.open=true;
- const summary=document.createElement('summary');summary.textContent='Creator test V36 · isolated guest session';panel.append(summary);
- function reset(which){if(!confirm('Reset '+which+' in this test session only?'))return;if(which==='welcome')outpostSession.setItem('welcome-places','{}');if(which==='ducks'||which==='all')outpostSession.setItem(progressKey,'{}');if(which==='colors'||which==='all')outpostSession.setItem(colorKey,'{}');if(which==='clothing'){const current=JSON.parse(outpostSession.getItem(colorKey)||'{}');current.laundry=[false,false,false];outpostSession.setItem(colorKey,JSON.stringify(current));}location.reload();}
- for(const [label,key] of [['Reset ducks','ducks'],['Reset missing colors','colors'],['Reset Washed Out','clothing'],['Reset both discoveries','all'],['Reset welcome','welcome']]){const b=document.createElement('button');b.textContent=label;b.style.cssText='margin:4px;padding:6px';b.onclick=()=>reset(key);panel.append(b);}
+ const summary=document.createElement('summary');summary.textContent='Creator test V37 · isolated guest session';panel.append(summary);
+ function reset(which){if(!confirm('Reset '+which+' in this test session only?'))return;if(which==='toad'){const w=JSON.parse(outpostSession.getItem('welcome-places')||'{}');delete w.toadstool;outpostSession.setItem('welcome-places',JSON.stringify(w));outpostSession.setItem('toad-stamp','false');}if(which==='welcome')outpostSession.setItem('welcome-places','{}');if(which==='ducks'||which==='all')outpostSession.setItem(progressKey,'{}');if(which==='colors'||which==='all')outpostSession.setItem(colorKey,'{}');if(which==='clothing'){const current=JSON.parse(outpostSession.getItem(colorKey)||'{}');current.laundry=[false,false,false];outpostSession.setItem(colorKey,JSON.stringify(current));}location.reload();}
+ for(const [label,key] of [['Reset ducks','ducks'],['Reset missing colors','colors'],['Reset Washed Out','clothing'],['Reset both discoveries','all'],['Reset welcome','welcome'],['Reset Toadstool Falls','toad']]){const b=document.createElement('button');b.textContent=label;b.style.cssText='margin:4px;padding:6px';b.onclick=()=>reset(key);panel.append(b);}
  for(let i=1;i<=3;i++){const r=document.createElement('div');r.id='testLaundry'+i;r.textContent='Clothing '+i+' · waiting for bookmark';panel.append(r);}
  const exit=document.createElement('a');exit.href=location.pathname;exit.textContent='Exit testing mode';exit.style.cssText='display:block;margin:6px;color:#38563d';panel.append(exit);document.body.append(panel);
 })();
-</script></body></html>
+</script><style>#toadStamp{margin-top:20px;color:#58734b;border-color:#58734b}#toadStamp.claimed{color:#476344;border-color:#476344;box-shadow:inset 0 0 0 5px #ead4aa,inset 0 0 0 7px #476344}#toadStamp b{font-size:13px;letter-spacing:0}#toadNotice[hidden],#toadStampSection[hidden]{display:none}</style><script>
+(function(){
+ const notice=document.getElementById('toadNotice'),section=document.getElementById('toadStampSection'),art=document.getElementById('toadStamp'),button=document.getElementById('pressToadStamp');let inside=false,timer;
+ function update(){const known=!!window.explorerWelcomes.get().toadstool;section.hidden=!known;art.classList.toggle('claimed',toadStamped);document.getElementById('toadSeal').textContent=toadStamped?'CHARTED':'UNSTAMPED';button.disabled=!known||toadStamped;button.textContent=toadStamped?'Stamp Collected':'Press Stamp';document.getElementById('toadStampStatus').textContent=toadStamped?'A little piece of Toadstool Falls travels with you.':'A stamp is waiting for you!';if(document.querySelector('.tab[data-section="worlds"]')?.getAttribute('aria-selected')==='true')showSection('worlds');}
+ window.addEventListener('toad-changed',update);update();
+ button.onclick=()=>{if(button.disabled)return;toadStamped=true;if(window.explorerCloudActive)window.saveExplorerProgress?.();else outpostSession.setItem('toad-stamp','true');update();art.animate([{transform:'rotate(-10deg) scale(1.35)',opacity:.4},{transform:'rotate(-9deg) scale(1)',opacity:1}],{duration:480});};
+ function welcome(){if(inside&&window.explorerWelcomes.claim('toadstool')){document.getElementById('bellwetherNotice').hidden=true;notice.hidden=false;clearTimeout(timer);timer=setTimeout(()=>notice.hidden=true,8000);update();}}
+ setInterval(welcome,500);
+ if(window.EndlessPaper)EndlessPaper.onLoad(iframe=>{if(iframe.parentElement?.id!=='world')return;EndlessPaper.onBookmarkNearby({name:'Toadstool Falls'},bookmarks=>{const m=bookmarks?.find(b=>b.name==='Toadstool Falls');const z=Number(m?.zoomFactor),v=m?.intersectionInfo?.visibleBookmarkRatio;inside=!!m&&Number.isFinite(z)&&z<=4&&v>=0.08;if(!inside)notice.hidden=true;welcome();if(outpostTesting){let d=document.getElementById('toadDiag');if(!d){d=document.createElement('div');d.id='toadDiag';document.querySelector('details:has(#testLaundry1)')?.append(d);}d.textContent='Toadstool Falls · zoom '+(Number.isFinite(z)?z.toFixed(2):'—')+' · visibility '+Math.round((v||0)*100)+'%';}},iframe);});
+})();</script></body></html>
