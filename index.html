@@ -512,9 +512,18 @@ window.explorerPassportStamps={
  apply(value){bellwetherStamped=value===true;window.dispatchEvent(new Event('outpost-stamp-changed'))},
  claim(){if(bellwetherStamped)return;bellwetherStamped=true;try{outpostSession.setItem(STAMP_GUEST_KEY,'true')}catch(_){};window.dispatchEvent(new Event('outpost-stamp-changed'));if(window.explorerCloudActive&&window.saveExplorerProgress)window.saveExplorerProgress()}
 };
+// Welcome history uses the same account progress record as discoveries.
+let welcomedPlaces={};
+try{welcomedPlaces=JSON.parse(outpostSession.getItem('welcome-places')||'{}')}catch(_){}
+window.explorerWelcomeReady=outpostTesting;
+window.explorerWelcomes={
+ get(){return {...welcomedPlaces}},
+ apply(value){welcomedPlaces={...(value||{})}},
+ claim(place){if(!window.explorerWelcomeReady||window.explorerDiscoveryReady?.()===false||welcomedPlaces[place])return false;welcomedPlaces[place]=true;if(window.explorerCloudActive)window.saveExplorerProgress?.();else try{outpostSession.setItem('welcome-places',JSON.stringify(welcomedPlaces))}catch(_){};return true}
+};
 window.explorerProgressBridge={
- snapshot(){return {ducks:Object.fromEntries(duckClues.map(d=>[d.id,!!duckProgress[d.id]])),colors:Object.fromEntries(colorClues.map(c=>[c.id,colorProgress[c.id].map(Boolean)])),fieldRecords:window.explorerFieldNotes.get(),stamps:{bellwether:window.explorerPassportStamps.get()}}},
- apply(progress){const d=progress?.ducks||{},c=progress?.colors||{};window.explorerFieldNotes.apply(progress?.fieldRecords||[]);window.explorerPassportStamps.apply(progress?.stamps?.bellwether===true);for(const duck of duckClues)duckProgress[duck.id]=d[duck.id]===true;for(const clue of colorClues)colorProgress[clue.id]=Array.from({length:clue.count},(_,i)=>c[clue.id]?.[i]===true);if(document.querySelector('.tab[data-section="discoveries"]')?.getAttribute('aria-selected')==='true')showSection('discoveries');else if(document.querySelector('.tab[data-section="tales"]')?.getAttribute('aria-selected')==='true')showSection('tales')}
+ snapshot(){return {ducks:Object.fromEntries(duckClues.map(d=>[d.id,!!duckProgress[d.id]])),colors:Object.fromEntries(colorClues.map(c=>[c.id,colorProgress[c.id].map(Boolean)])),welcomes:window.explorerWelcomes.get(),fieldRecords:window.explorerFieldNotes.get(),stamps:{bellwether:window.explorerPassportStamps.get()}}},
+ apply(progress){window.explorerWelcomes.apply(progress?.welcomes);const d=progress?.ducks||{},c=progress?.colors||{};window.explorerFieldNotes.apply(progress?.fieldRecords||[]);window.explorerPassportStamps.apply(progress?.stamps?.bellwether===true);for(const duck of duckClues)duckProgress[duck.id]=d[duck.id]===true;for(const clue of colorClues)colorProgress[clue.id]=Array.from({length:clue.count},(_,i)=>c[clue.id]?.[i]===true);if(document.querySelector('.tab[data-section="discoveries"]')?.getAttribute('aria-selected')==='true')showSection('discoveries');else if(document.querySelector('.tab[data-section="tales"]')?.getAttribute('aria-selected')==='true')showSection('tales')}
 };
 </script>
 
@@ -533,7 +542,7 @@ window.explorerCloudActive=false;
 function progressMessage(text,isError=false){message(text,isError)}
 async function loadExplorerProgress(user){
  const generation=++cloudGeneration;
- cloudReady=false;
+ cloudReady=false;window.explorerWelcomeReady=false;
  const switching=cloudUserId!==user.id;
  if(switching){
   if(!cloudUserId){guestSnapshot=bridge.snapshot();guestFieldSnapshot=window.explorerFieldNotes.get();guestStampSnapshot=window.explorerPassportStamps.get();}
@@ -543,7 +552,7 @@ async function loadExplorerProgress(user){
  const {data,error}=await supabase.from('explorer_progress').select('progress').eq('user_id',user.id).maybeSingle();
  if(generation!==cloudGeneration)return;
  if(error){progressMessage('Signed in, but discoveries could not sync: '+error.message,true);return}
- if(data){bridge.apply(data.progress||{});cloudReady=true;return}
+ if(data){bridge.apply(data.progress||{});cloudReady=true;window.explorerWelcomeReady=true;return}
  // On the first login, preserve progress from this browser rather than erase it.
  const initial=guestSnapshot||bridge.snapshot();
  const result=await supabase.from('explorer_progress').upsert({user_id:user.id,progress:initial,updated_at:new Date().toISOString()},{onConflict:'user_id',ignoreDuplicates:true});
@@ -553,7 +562,7 @@ async function loadExplorerProgress(user){
  const latest=await supabase.from('explorer_progress').select('progress').eq('user_id',user.id).maybeSingle();
  if(generation!==cloudGeneration)return;
  if(latest.error){progressMessage('Discoveries could not load: '+latest.error.message,true);return}
- bridge.apply(latest.data?.progress||initial);cloudReady=true;
+ bridge.apply(latest.data?.progress||initial);cloudReady=true;window.explorerWelcomeReady=true;
 }
 window.explorerDiscoveryReady=()=>!window.explorerCloudActive||cloudReady;
 window.saveExplorerProgress=()=>{
@@ -567,7 +576,7 @@ window.saveExplorerProgress=()=>{
  });
 };
 function leaveExplorerProgress(){
- ++cloudGeneration;cloudReady=false;cloudUserId=null;window.explorerCloudActive=false;
+ ++cloudGeneration;cloudReady=false;cloudUserId=null;window.explorerCloudActive=false;window.explorerWelcomeReady=true;
  if(guestSnapshot){bridge.apply(guestSnapshot);guestSnapshot=null}if(guestFieldSnapshot){window.explorerFieldNotes.apply(guestFieldSnapshot);guestFieldSnapshot=null}if(guestStampSnapshot!==null){window.explorerPassportStamps.apply(guestStampSnapshot);guestStampSnapshot=null}
 }
 
@@ -604,7 +613,7 @@ form.addEventListener('submit',async e=>{
 });
 $('passportSignOut').addEventListener('click',async()=>{const {error}=await supabase.auth.signOut();if(error)message(error.message,true);else{await renderUser(null);setMode('signin');message('Signed out. You can still explore as a guest.')}});
 supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'){mode='recovery';$('passportGuest').hidden=false;$('passportMember').hidden=true;$('nameGroup').hidden=true;$('explorerEmail').parentElement.querySelector('label[for=explorerEmail]').hidden=true;$('explorerEmail').hidden=true;$('explorerPassword').value='';$('explorerPassword').autocomplete='new-password';$('passportSubmit').textContent='Set new password';$('passportMode').hidden=true;$('passportReset').hidden=true;openPassport(true);message('Enter your new password below.')}else if(event==='SIGNED_OUT'){renderUser(null)}else if(session?.user&&mode!=='recovery'){setTimeout(()=>renderUser(session.user),0)}});
-(async()=>{const {data,error}=await supabase.auth.getUser();if(data?.user)await renderUser(data.user);else if(error&&error.name!=='AuthSessionMissingError')message('Account service: '+error.message,true)})();
+(async()=>{const {data,error}=await supabase.auth.getUser();if(data?.user)await renderUser(data.user);else if(error&&error.name!=='AuthSessionMissingError')message('Account service: '+error.message,true);else if(!cloudUserId)window.explorerWelcomeReady=true})();
 
 }else{window.explorerCloudActive=false;document.getElementById("passportForm").hidden=true;document.getElementById("passportStatus").textContent="Testing session — account sign-in disabled.";}
 </script>
@@ -617,7 +626,7 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
  const BOOKMARK='The Town of Bellwether';
  const ARRIVE_ZOOM=4.0; // Greet near the saved full-town view (observed zoom 3.33).
  const LEAVE_ZOOM=6.0;  // Reset only after zooming substantially away from town.
- let ready=false, callbacks=0, inTown=false, greetingShown=false, fieldTimer=null, welcomeTimer=null;
+ let ready=false, callbacks=0, inTown=false, fieldTimer=null, welcomeTimer=null;
  const recordToast=document.getElementById('fieldRecordToast');
  document.getElementById('dismissFieldRecord').addEventListener('click',()=>{recordToast.hidden=true;});
  function offerFieldRecord(){
@@ -625,6 +634,9 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
    // The note is stored as soon as it is presented; it is not a second checkbox.
    if(window.explorerFieldNotes.collect('bellwether-arrival-001'))recordToast.hidden=false;
  }
+ function maybeWelcome(){if(inTown&&window.explorerWelcomes.claim('bellwether')){notice.hidden=false;clearTimeout(welcomeTimer);welcomeTimer=setTimeout(()=>{notice.hidden=true;},8000);}}
+ // Arrival can precede account loading; retry only while still in town.
+ setInterval(maybeWelcome,500);
  function show(t){status.textContent=t;}
  if(!window.EndlessPaper){show('Integration library unavailable');return;}
  EndlessPaper.onLoad(function(iframe){
@@ -643,12 +655,11 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
        if(!inTown && valid && zoom<=ARRIVE_ZOOM) {
          inTown=true;
          window.explorerCompass?.discover('bellwether');
-         if(!greetingShown){notice.hidden=false;greetingShown=true;clearTimeout(welcomeTimer);welcomeTimer=setTimeout(()=>{notice.hidden=true;},8000);}
+         maybeWelcome();
          clearTimeout(fieldTimer);
          fieldTimer=setTimeout(offerFieldRecord,9000);
        } else if(inTown && (!valid || zoom>LEAVE_ZOOM)) {
          inTown=false;
-         greetingShown=false;
          notice.hidden=true;
          clearTimeout(fieldTimer);
        }
@@ -861,9 +872,9 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
  if(guest){const p=document.createElement('p');p.textContent='Every adventure is worth remembering. Create your Explorer’s Passport to preserve your discoveries, collected records, and travels between worlds. Guest progress lasts for this browsing session.';guest.prepend(p);}
  if(!outpostTesting)return;
  const panel=document.createElement('details');panel.style.cssText='position:fixed;top:8px;left:8px;z-index:2000;background:#f0dfbd;color:#493b2a;padding:8px;max-width:85vw;font:14px sans-serif;border:1px solid #94764f;border-radius:5px';panel.open=true;
- const summary=document.createElement('summary');summary.textContent='Creator test V35 · isolated guest session';panel.append(summary);
- function reset(which){if(!confirm('Reset '+which+' in this test session only?'))return;if(which==='ducks'||which==='all')outpostSession.setItem(progressKey,'{}');if(which==='colors'||which==='all')outpostSession.setItem(colorKey,'{}');if(which==='clothing'){const current=JSON.parse(outpostSession.getItem(colorKey)||'{}');current.laundry=[false,false,false];outpostSession.setItem(colorKey,JSON.stringify(current));}location.reload();}
- for(const [label,key] of [['Reset ducks','ducks'],['Reset missing colors','colors'],['Reset Washed Out','clothing'],['Reset both discoveries','all']]){const b=document.createElement('button');b.textContent=label;b.style.cssText='margin:4px;padding:6px';b.onclick=()=>reset(key);panel.append(b);}
+ const summary=document.createElement('summary');summary.textContent='Creator test V36 · isolated guest session';panel.append(summary);
+ function reset(which){if(!confirm('Reset '+which+' in this test session only?'))return;if(which==='welcome')outpostSession.setItem('welcome-places','{}');if(which==='ducks'||which==='all')outpostSession.setItem(progressKey,'{}');if(which==='colors'||which==='all')outpostSession.setItem(colorKey,'{}');if(which==='clothing'){const current=JSON.parse(outpostSession.getItem(colorKey)||'{}');current.laundry=[false,false,false];outpostSession.setItem(colorKey,JSON.stringify(current));}location.reload();}
+ for(const [label,key] of [['Reset ducks','ducks'],['Reset missing colors','colors'],['Reset Washed Out','clothing'],['Reset both discoveries','all'],['Reset welcome','welcome']]){const b=document.createElement('button');b.textContent=label;b.style.cssText='margin:4px;padding:6px';b.onclick=()=>reset(key);panel.append(b);}
  for(let i=1;i<=3;i++){const r=document.createElement('div');r.id='testLaundry'+i;r.textContent='Clothing '+i+' · waiting for bookmark';panel.append(r);}
  const exit=document.createElement('a');exit.href=location.pathname;exit.textContent='Exit testing mode';exit.style.cssText='display:block;margin:6px;color:#38563d';panel.append(exit);document.body.append(panel);
 })();
