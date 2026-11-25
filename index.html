@@ -894,7 +894,7 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
  if(guest){const p=document.createElement('p');p.textContent='Every adventure is worth remembering. Create your Explorer’s Passport to preserve your discoveries, collected records, and travels between worlds. Guest progress lasts for this browsing session.';guest.prepend(p);}
  if(!outpostTesting)return;
  const panel=document.createElement('details');panel.style.cssText='position:fixed;top:8px;left:8px;z-index:2000;background:#f0dfbd;color:#493b2a;padding:8px;max-width:85vw;font:14px sans-serif;border:1px solid #94764f;border-radius:5px';panel.open=true;
- const summary=document.createElement('summary');summary.textContent='Creator test V39 · isolated guest session';panel.append(summary);
+ const summary=document.createElement('summary');summary.textContent='Creator test V40 · isolated guest session';panel.append(summary);
  function reset(which){if(!confirm('Reset '+which+' in this test session only?'))return;if(which==='people')outpostSession.setItem(characterKey,'[]');if(which==='toad'){const w=JSON.parse(outpostSession.getItem('welcome-places')||'{}');delete w.toadstool;outpostSession.setItem('welcome-places',JSON.stringify(w));outpostSession.setItem('toad-stamp','false');}if(which==='welcome')outpostSession.setItem('welcome-places','{}');if(which==='ducks'||which==='all')outpostSession.setItem(progressKey,'{}');if(which==='colors'||which==='all')outpostSession.setItem(colorKey,'{}');if(which==='clothing'){const current=JSON.parse(outpostSession.getItem(colorKey)||'{}');current.laundry=[false,false,false];outpostSession.setItem(colorKey,JSON.stringify(current));}location.reload();}
  for(const [label,key] of [['Reset ducks','ducks'],['Reset missing colors','colors'],['Reset Washed Out','clothing'],['Reset both discoveries','all'],['Reset welcome','welcome'],['Reset Toadstool Falls','toad'],['Reset character encounters','people']]){const b=document.createElement('button');b.textContent=label;b.style.cssText='margin:4px;padding:6px';b.onclick=()=>reset(key);panel.append(b);}
  for(let i=1;i<=3;i++){const r=document.createElement('div');r.id='testLaundry'+i;r.textContent='Clothing '+i+' · waiting for bookmark';panel.append(r);}
@@ -928,4 +928,28 @@ supabase.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'
 .book .page.right .tab:nth-child(n){flex:0 1 auto;min-width:0;white-space:nowrap;font-size:clamp(11px,1.2vw,16px)!important;padding:8px 3px 7px!important;letter-spacing:0;}
 .book .page.right .tab[aria-selected="true"]::after{display:none;}
 }
+
+/* V40: handwritten index directly on the journal paper. Non-sticky so text never overlaps. */
+.book .page.right nav.tabs{
+ position:relative!important;top:auto!important;z-index:auto!important;
+ display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:4px 9px;
+ padding:0 0 9px!important;margin:0 0 15px!important;
+ background:transparent!important;border:0!important;border-bottom:1px solid #a68c6480!important;
+ box-shadow:none!important;isolation:auto;
+}
+.book .page.right nav.tabs::before{content:none!important;display:none!important;}
+.book .page.right nav.tabs .tab:nth-child(n){
+ flex:0 0 auto;min-width:0;white-space:nowrap;appearance:none;
+ font:700 21px/1.25 Caveat,cursive!important;letter-spacing:0;
+ padding:5px 1px 7px!important;background:transparent!important;color:#654b35!important;
+ border:0!important;box-shadow:none!important;text-shadow:none!important;clip-path:none!important;
+ transform:none!important;text-decoration:none!important;
+}
+.book .page.right nav.tabs .tab[aria-selected="true"]{color:#435b39!important;background:transparent!important;}
+.book .page.right nav.tabs .tab[aria-selected="true"]::after{
+ content:''!important;display:block!important;position:absolute;left:1px;right:1px;bottom:3px;height:4px;
+ margin:0!important;border-bottom:2px solid #526746;border-radius:0 0 55% 40%;transform:rotate(-1deg);pointer-events:none;
+}
+.book .page.right nav.tabs .tab:hover{color:#435b39!important;}
+@media(max-width:700px){.book .page.right nav.tabs{justify-content:flex-start;gap:3px 10px;}.book .page.right nav.tabs .tab:nth-child(n){font-size:20px!important;padding:7px 2px 9px!important;}}
 </style></body></html>
